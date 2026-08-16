@@ -1,4 +1,4 @@
-const CACHE = 'turf-sud-v9';
+const CACHE = 'turf-sud-v10';
 const FILES = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', e => {
