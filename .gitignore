@@ -1,22 +1,15 @@
-# Données collectées — jamais sur GitHub
-cache_pmu/
+﻿cache_pmu/
 cache/
 courses.json
 stats_pmu.json
 programmes.json
 urls.txt
 *.pdf
-
-# Sauvegardes locales de l'appli
 turf-sud-*.json
-
-# Python
 __pycache__/
 *.pyc
 .venv/
 venv/
-
-# Système
 .DS_Store
 Thumbs.db
 desktop.ini
