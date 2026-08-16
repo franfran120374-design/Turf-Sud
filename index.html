@@ -97,10 +97,10 @@ input[type=range]{padding:0;height:22px;background:none;border:none;accent-color
 table{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11.5px}
 th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--ligne)}
 th{color:var(--craie);font-weight:500;font-size:10px;letter-spacing:.1em;text-transform:uppercase}
-nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(4,1fr);
+nav{position:fixed;left:0;right:0;bottom:0;z-index:50;display:grid;grid-template-columns:repeat(5,1fr);
   background:rgba(14,32,24,.96);backdrop-filter:blur(10px);border-top:1px solid var(--ligne);
   padding:8px 6px calc(8px + env(safe-area-inset-bottom))}
-nav button{padding:7px 2px;border-radius:8px;font-family:'Oswald',sans-serif;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--craie)}
+nav button{padding:7px 1px;border-radius:8px;font-family:'Oswald',sans-serif;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--craie)}
 nav button[aria-pressed="true"]{color:var(--casaque)}
 nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;opacity:.9}
 .toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--sable);color:var(--piste);
@@ -114,13 +114,23 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 <header>
   <div class="brand"><h1>Turf Sud</h1><span class="tag">Simple placé</span></div>
   <div class="pistebar" role="group" aria-label="Hippodrome">
-    <button id="btnGrenade" aria-pressed="true" onclick="setPiste('grenade')">Grenade<small>PMH · sable · gauche</small></button>
-    <button id="btnCarca" aria-pressed="false" onclick="setPiste('carcassonne')">Carcassonne<small>herbe · droite</small></button>
+    <button data-piste="grenade" aria-pressed="true" onclick="setPiste('grenade')">Grenade<small>PMH · sable</small></button>
+    <button data-piste="carcassonne" aria-pressed="false" onclick="setPiste('carcassonne')">Carcass.<small>herbe · droite</small></button>
+    <button data-piste="pmu" aria-pressed="false" onclick="setPiste('pmu')">Ailleurs<small>tout hippodrome</small></button>
   </div>
   <p class="pistenote" id="pisteNote"></p>
 </header>
 
 <main>
+
+<section id="s-jour">
+  <div class="block">
+    <h2>Toutes les courses du jour <button class="btn gh sm" onclick="tableauJour()">Actualiser</button></h2>
+    <p class="hint">Le modèle passe sur chaque course et affiche sa sélection placé. Touchez une ligne pour l'ouvrir en détail.</p>
+    <div id="jourStat" class="stat" style="margin-top:11px"></div>
+  </div>
+  <div id="jourListe"></div>
+</section>
 
 <section id="s-course" class="on">
   <div class="block">
@@ -138,6 +148,19 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
       <label class="f"><span>Pool placé estimé (€)</span><input type="number" id="cPool" value="1200" step="100" title="Sans effet si vous misez moins de 1 % du pot"></label>
     </div>
     <label class="f" style="margin-top:9px"><span>Nom de la course</span><input id="cNom" placeholder="Prix de la Save"></label>
+  </div>
+
+  <div class="block" id="jourBox" style="display:none">
+    <h2>Réunions du jour <button class="btn gh sm" onclick="chargerJour()">Actualiser</button></h2>
+    <p class="hint">Partants, cotes et musiques déjà remplis. Le fichier est produit chaque matin par <span class="mono">jour.py</span> et publié avec l'appli.</p>
+    <div id="jourEtat" class="hint mono" style="margin:8px 0"></div>
+    <div class="grid" id="jourSel" style="display:none">
+      <label class="f"><span>Réunion</span><select id="jourR" onchange="majCourses()"></select></label>
+      <label class="f"><span>Course</span><select id="jourC"></select></label>
+    </div>
+    <div class="row end" id="jourGo" style="display:none;margin-top:9px">
+      <button class="btn pri" onclick="chargerCourseJour()">Charger cette course</button>
+    </div>
   </div>
 
   <div class="block">
@@ -227,6 +250,15 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
     <p class="hint" style="margin-top:9px">Le rapport plancher est un garde-fou, pas la règle. La vraie règle est <b>rapport &gt; point mort</b>, et le point mort vaut <b>1 ÷ probabilité de place</b> — il change à chaque cheval. Un rapport de 1,45 n'est rentable que sur un cheval à 69 % de place ou mieux. Avec la marge d'erreur du modèle, comptez plutôt 77 %.</p>
   </div>
   <div class="block">
+    <h2>Relais PMU</h2>
+    <label class="f"><span>URL du service Render</span>
+      <input id="rProxy" placeholder="https://turf-sud-relais.onrender.com" oninput="majReglages()"></label>
+    <p class="hint" style="margin-top:8px">Renseigné, l'appli récupère les cotes <b>en direct</b> à chaque actualisation. Vide, elle lit <span class="mono">data/jour.json</span> produit par <span class="mono">jour.py</span>. Le plan gratuit Render s'endort après 15 min : le premier appel du matin prend 40 à 60 s, les suivants sont instantanés.</p>
+    <div class="row" style="margin-top:9px"><button class="btn sm" onclick="testerProxy()">Tester</button>
+      <span class="hint mono" id="proxyEtat" style="align-self:center"></span></div>
+  </div>
+
+  <div class="block">
     <h2>Modèle</h2>
     <div class="wrow"><label for="rLambda">Poids modèle vs marché (λ)</label><output id="oLambda"></output></div>
     <input type="range" id="rLambda" min="0" max="1" step="0.05" oninput="majReglages()">
@@ -275,6 +307,7 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 </main>
 
 <nav role="tablist">
+  <button aria-pressed="false" onclick="tab('jour',this)"><i>&#9673;</i>Du jour</button>
   <button aria-pressed="true" onclick="tab('course',this)"><i>&#9636;</i>Course</button>
   <button aria-pressed="false" onclick="tab('analyse',this)"><i>&#9672;</i>Analyse</button>
   <button aria-pressed="false" onclick="tab('suivi',this)"><i>&#9650;</i>Suivi</button>
@@ -347,7 +380,7 @@ const DRIVERS_GRENADE={"F. CLOZIER":25,"M. CRIADO":24,"X. CHARLOT":22,"D. LAISIS
   "N. DESPRES":11,"Ax. LAIGRON":11,"P. GERAY":11};
 
 const DEF={mode:'value',lambda:0.40,temp:1.2,sims:30000,bank:200,kelly:0.25,seuil:12,maxMise:3,
-  take:17.5,miseMin:1.5,pMin:35,rMin:1.45,miseFixe:3,cfgV:6,poids:Object.fromEntries(CRITERES.map(c=>[c.k,c.w]))};
+  take:17.5,miseMin:1.5,pMin:35,rMin:1.45,miseFixe:3,proxy:'',cfgV:6,poids:Object.fromEntries(CRITERES.map(c=>[c.k,c.w]))};
 let cfg=Object.assign({},DEF,J('ts_cfg',{}));
 CRITERES.forEach(c=>{if(cfg.poids[c.k]===undefined)cfg.poids[c.k]=c.w});
 if((cfg.cfgV||0)<6){   // recalage sur 37 courses reelles de Grenade : peloton median 14 partants
@@ -575,6 +608,165 @@ async function chargerMeteo(){
       `Cumul 48 h : <b>${cumul.toFixed(1)} mm</b> · ${Math.round(tp[tp.length-1])} °C · vent ${Math.round(vt[vt.length-1])} km/h. `+
       `Terrain déduit : <b>${t}</b> (${surface}). C'est une estimation à corriger si vous avez vu la piste.`;
   }catch(e){document.getElementById('meteoNote').textContent='Météo indisponible — saisissez à la main.'}
+}
+
+/* ==================================================================
+   Réunions du jour.
+   L'API PMU refuse les appels depuis un navigateur (CORS : 403 dès
+   qu'un Origin est envoyé). On passe donc par un fichier produit
+   côté PC par jour.py et servi par le site, comme la base
+   d'entraînement.
+   ================================================================== */
+let jour=null;
+function aujourdhui(){return new Date().toISOString().slice(0,10)}
+async function testerProxy(){
+  const e=document.getElementById('proxyEtat');
+  if(!cfg.proxy){e.textContent='aucune URL';return}
+  e.textContent='appel…';
+  const t=Date.now();
+  try{
+    const r=await fetch(cfg.proxy.replace(/\/$/,'')+'/health');
+    const d=await r.json();
+    e.innerHTML=`<span style="color:var(--menthe)">ok en ${((Date.now()-t)/1000).toFixed(1)} s</span> · cache ${d.cache}`;
+  }catch(err){e.innerHTML='<span style="color:var(--brique)">injoignable</span>'}
+}
+
+/* Deux sources, dans l'ordre : le relais Render s'il est configuré
+   (cotes fraîches), sinon le fichier publié avec l'appli. */
+async function chargerJour(){
+  const e=document.getElementById('jourEtat');
+  const viaProxy=!!cfg.proxy;
+  e.textContent=viaProxy?'relais… (réveil possible, jusqu\'à 60 s)':'chargement…';
+  try{
+    const url=viaProxy?cfg.proxy.replace(/\/$/,'')+'/api/jour/'+aujourdhui():'./data/jour.json';
+    const r=await fetch(url,{cache:'no-cache'});
+    if(!r.ok)throw new Error(r.status);
+    jour=await r.json();
+    await appliquerStats();
+    const n=jour.reunions.reduce((a,x)=>a+x.courses.length,0);
+    const src=viaProxy?'<span style="color:var(--menthe)">direct</span>':'fichier';
+    e.innerHTML=`<b>${jour.date}</b> · ${jour.reunions.length} réunions · ${n} courses · ${src}`;
+    window._jourLignes=null;
+    document.getElementById('jourR').innerHTML=jour.reunions.map((x,i)=>
+      `<option value="${i}">R${x.r} ${esc(x.hippodrome)}</option>`).join('');
+    document.getElementById('jourSel').style.display='';
+    document.getElementById('jourGo').style.display='';
+    majCourses();
+  }catch(err){
+    if(viaProxy){          // le relais a échoué : on retombe sur le fichier
+      const sauve=cfg.proxy;cfg.proxy='';
+      try{await chargerJour();return}finally{cfg.proxy=sauve}
+    }
+    jour=null;
+    document.getElementById('jourSel').style.display='none';
+    document.getElementById('jourGo').style.display='none';
+    e.textContent=(err.message==='404')
+      ?"data/jour.json absent — lancez jour.py puis push.ps1"
+      :'échec : '+err.message;
+  }
+}
+let statsPMU=null;
+async function appliquerStats(){
+  if(!jour)return;
+  if(statsPMU===null){
+    try{const r=await fetch('./data/stats.json',{cache:'force-cache'});statsPMU=r.ok?await r.json():{}}
+    catch(e){statsPMU={}}
+  }
+  const td=statsPMU.drivers||{},te=statsPMU.entraineurs||{},tdh=statsPMU.drivers_par_hippodrome||{};
+  if(!Object.keys(td).length)return;
+  jour.reunions.forEach(R=>R.courses.forEach(C=>C.partants.forEach(p=>{
+    if(p.driver==null&&p.driverNom)p.driver=(td[p.driverNom]||{}).taux;
+    if(p.entraineur==null&&p.entraineurNom)p.entraineur=(te[p.entraineurNom]||{}).taux;
+    if(p.driverLocal==null&&p.driverNom)p.driverLocal=(tdh[p.driverNom+' @ '+R.hippodrome]||{}).taux;
+  })));
+}
+
+function majCourses(){
+  if(!jour)return;
+  const R=jour.reunions[+document.getElementById('jourR').value];
+  document.getElementById('jourC').innerHTML=R.courses.map((c,i)=>
+    `<option value="${i}">C${c.c} · ${esc((c.libelle||'').slice(0,26))} · ${c.partants.length} part.</option>`).join('');
+}
+function chargerCourseJour(){
+  if(!jour){toast('Chargez d\'abord les réunions');return}
+  const R=jour.reunions[+document.getElementById('jourR').value];
+  const C=R.courses[+document.getElementById('jourC').value];
+  partants=C.partants.map(p=>{const o={};ORDRE.forEach(k=>{if(p[k]!==null&&p[k]!==undefined&&p[k]!=='')o[k]=p[k]});return o});
+  S('ts_partants',partants);
+  document.getElementById('cNom').value=`${R.hippodrome} — ${C.libelle||'C'+C.c}`;
+  document.getElementById('cDist').value=C.distance||2400;
+  const sel=document.getElementById('cDisc');
+  if([...sel.options].some(o=>o.value===C.discipline))sel.value=C.discipline;
+  renderPartants();
+  toast(`${partants.length} partants chargés · ${nbPlaces(partants.length)} places payées`);
+}
+
+/* Tableau de bord de la journée : le modèle tourne sur toutes les
+   courses d'un coup. Harville plutôt que Monte-Carlo — 50 courses en
+   quelques millisecondes, et le detail d'une course reste simulé. */
+async function tableauJour(){
+  const L=document.getElementById('jourListe'), St=document.getElementById('jourStat');
+  L.innerHTML='<p class="empty">Calcul…</p>';
+  if(!jour)await chargerJour();
+  if(!jour){L.innerHTML='<p class="empty">Aucune donnée.<br>Lancez <span class="mono">jour.py</span> puis <span class="mono">push.ps1</span>.</p>';St.innerHTML='';return}
+
+  const take=cfg.take/100, lignes=[];
+  jour.reunions.forEach(R=>R.courses.forEach(C=>{
+    const P=C.partants.map(p=>{const o={};ORDRE.forEach(k=>{if(p[k]!==null&&p[k]!==undefined&&p[k]!=='')o[k]=p[k]});return o});
+    const ctx={dist:C.distance||2400,piste:'pmu',disc:C.discipline||'trot_attele',terrain:'bon'};
+    const M=moteur(P,ctx,null);
+    if(!M)return;
+    const pl=harville(M.prob,M.k);
+    const plM=M.aCotes?harville(M.marche.map(v=>v||1e-6),M.k):null;
+    let best=null;
+    P.forEach((p,i)=>{
+      const cote=num(p.cotePlace)||(plM?Math.max(1.01,(1-take)/Math.max(plM[i],1e-4)):null);
+      const val=cote?pl[i]*cote-1:null;
+      const o={num:p.num,nom:p.nom,p:pl[i],cote,estime:!num(p.cotePlace),val,eq:pl[i]>0?1/pl[i]:null};
+      if(!best||o.p>best.p)best=o;
+    });
+    if(!best)return;
+    const feu=best.val!==null&&best.val*100>=cfg.seuil&&(best.cote||0)>=cfg.rMin&&best.p*100>=cfg.pMin;
+    lignes.push({R,C,best,feu,n:P.length,k:M.k,
+      h:C.heure?new Date(C.heure).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):''});
+  }));
+  lignes.sort((a,b)=>(a.h||'99').localeCompare(b.h||'99'));
+
+  const nf=lignes.filter(l=>l.feu).length;
+  St.innerHTML=`
+    <div><span>Courses</span><b>${lignes.length}</b></div>
+    <div><span>Réunions</span><b>${jour.reunions.length}</b></div>
+    <div><span>Paris déclenchés</span><b style="color:${nf?'var(--casaque)':'var(--sable)'}">${nf}</b></div>
+    <div><span>Journée</span><b style="font-size:14px">${esc(jour.date)}</b></div>`;
+
+  L.innerHTML=lignes.map((l,i)=>`
+    <div class="res${l.feu?' pick':''}" onclick="ouvrirJour(${i})" style="cursor:pointer">
+      <div class="res-top">
+        <span class="rk" style="width:34px">${l.h}</span>
+        <div class="casaque" style="background:${l.feu?'var(--menthe)':'var(--or)'}">${esc(l.best.num)}</div>
+        <div style="flex:1;min-width:0">
+          <b style="font-size:14px">${esc(l.best.nom||'—')}</b>
+          <div class="mono" style="font-size:10.5px;color:var(--craie)">R${l.R.r} ${esc(l.R.hippodrome.replace(/^HIPPODROME (DE |D'|DU )?/,''))} · C${l.C.c} · ${l.n} part.</div>
+        </div>
+        <span class="pill ${l.feu?'gd':'no'}">${l.val===null?'—':''}${(l.best.p*100).toFixed(0)} %</span>
+      </div>
+      <div class="kv">
+        <span>rapport <b>${l.best.cote?l.best.cote.toFixed(2):'—'}${l.best.estime?' est.':''}</b></span>
+        <span>point mort <b style="color:${l.best.cote&&l.best.cote>=l.best.eq?'var(--menthe)':'var(--brique)'}">${l.best.eq?l.best.eq.toFixed(2):'—'}</b></span>
+        ${l.feu?'<span style="color:var(--menthe)">pari</span>':''}
+      </div>
+    </div>`).join('') || '<p class="empty">Aucune course exploitable.</p>';
+  window._jourLignes=lignes;
+}
+function ouvrirJour(i){
+  const l=window._jourLignes[i];
+  if(!l)return;
+  setPiste('pmu');
+  document.getElementById('jourR').value=jour.reunions.indexOf(l.R);
+  majCourses();
+  document.getElementById('jourC').value=l.R.courses.indexOf(l.C);
+  chargerCourseJour();
+  analyser();
 }
 
 /* ---------- Saisie ---------- */
@@ -917,7 +1109,7 @@ function suppCourse(id){histo=histo.filter(x=>x.id!==id);S('ts_histo',histo);ren
 /* ---------- Réglages ---------- */
 function renderReglages(){
   const set=(i,v)=>document.getElementById(i).value=v;
-  set('rMode',cfg.mode);set('rPmin',cfg.pMin);set('rRmin',cfg.rMin);
+  set('rProxy',cfg.proxy||'');set('rMode',cfg.mode);set('rPmin',cfg.pMin);set('rRmin',cfg.rMin);
   set('rLambda',cfg.lambda);set('rTemp',cfg.temp);set('rSim',cfg.sims);
   set('rFixe',cfg.miseFixe);set('rBank',cfg.bank);set('rKelly',cfg.kelly);set('rSeuil',cfg.seuil);
   set('rMax',cfg.maxMise);set('rTake',cfg.take);set('rMin',cfg.miseMin);
@@ -935,6 +1127,7 @@ function setPoids(k,v){cfg.poids[k]=+v;document.getElementById('ow_'+k).textCont
 function resetPoids(){cfg.poids=Object.assign({},DEF.poids);S('ts_cfg',cfg);renderReglages();toast('Poids réinitialisés')}
 function majReglages(){
   const g=i=>+document.getElementById(i).value;
+  cfg.proxy=(document.getElementById('rProxy').value||'').trim();
   cfg.mode=document.getElementById('rMode').value;
   cfg.pMin=g('rPmin')||45;cfg.rMin=g('rRmin')||1.35;
   cfg.lambda=g('rLambda');cfg.temp=g('rTemp');cfg.sims=g('rSim');
@@ -985,24 +1178,27 @@ function tab(id,btn){
   document.getElementById('s-'+id).classList.add('on');
   document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed','false'));
   btn.setAttribute('aria-pressed','true');
+  if(id==='jour'&&!window._jourLignes)tableauJour();
   if(id==='suivi')renderSuivi();
   if(id==='reglages')renderReglages();
   window.scrollTo({top:0,behavior:'instant'});
 }
 function setPiste(p){
   piste=p;store.set('ts_piste',p);
-  document.getElementById('btnGrenade').setAttribute('aria-pressed',p==='grenade');
-  document.getElementById('btnCarca').setAttribute('aria-pressed',p==='carcassonne');
+  document.querySelectorAll('.pistebar button').forEach(b=>
+    b.setAttribute('aria-pressed', b.dataset.piste===p));
   document.getElementById('pisteNote').textContent=PISTES[p].note;
+  document.getElementById('jourBox').style.display=(p==='pmu')?'':'none';
   const sel=document.getElementById('cDisc'),dispo=PISTES[p].disciplines;
   [...sel.options].forEach(o=>o.hidden=!dispo.includes(o.value));
   if(!dispo.includes(sel.value))sel.value=dispo[0];
-  document.getElementById('cPool').value=p==='grenade'?1200:2500;
+  document.getElementById('cPool').value=p==='grenade'?1200:(p==='pmu'?60000:2500);
   renderPartants();
 }
 document.getElementById('cDate').value=new Date().toISOString().slice(0,10);
 setPiste(piste);renderPartants();renderReglages();renderSuivi();
 if(baseInfo)document.getElementById('baseEtat').textContent=baseInfo+' (cliquez pour recharger)';
+if(piste==='pmu')chargerJour();
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 </body>
