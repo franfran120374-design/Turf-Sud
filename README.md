@@ -1,4 +1,4 @@
-# Turf Sud v3 — SIMPLE PLACÉ · Grenade-sur-Garonne & Carcassonne
+# Turf Sud v7 — SIMPLE PLACÉ · Grenade-sur-Garonne & Carcassonne
 
 PWA d'analyse de courses. Aucune dépendance, aucun backend, données en local.
 **v2 : le moteur travaille sur la probabilité de PLACE, plus sur le gagnant.**
@@ -287,3 +287,26 @@ fournit aussi les probabilités jointes.
 
 L'optimiseur sous-échantillonne au-delà de 900 courses d'entraînement : le
 gain de précision y est nul et le coût, lui, ne l'est pas.
+
+
+---
+
+## Calendrier de Grenade — ce qu'il faut savoir
+
+L'hippodrome de Marianne annonce **9 réunions de trot par an**, et le relevé des
+réunions passées montre une saison très concentrée :
+
+    25/10 · 02/11 · 23/11 · 07/12 · 14/12 · 21/12 · 25/01 · … · 15/08
+
+Autrement dit : **d'octobre à fin janvier**, plus la grande réunion d'été du
+15 août. Entre février et septembre, la piste est quasiment muette.
+
+Conséquence pratique : après le 15 août, il faut attendre **fin octobre** pour
+la reprise. Ce n'est pas une saison où l'on accumule des données vite — raison
+de plus pour entraîner le modèle sur la base PMU (`collecte_pmu.py`) plutôt que
+d'attendre Grenade.
+
+Les deux sources à surveiller pour les dates :
+- `hippodromegrenade.com/les-courses/` — la société de courses elle-même
+- `letrot.com/hippodromes/grenade-sur-garonne/3102` — fiche officielle LeTROT
+- `fnch.fr/federation-sud-ouest/programme-des-courses` — programmes PDF téléchargeables
