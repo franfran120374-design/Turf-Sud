@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: turf-sud-relais
+    runtime: python
+    plan: free
+    region: frankfurt
+    rootDir: proxy
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /sante
+    envVars:
+      - key: ORIGINES
+        value: https://franfran120374-design.github.io

@@ -124,6 +124,7 @@ Titre "Publication de la base"
 if (Test-Path ".\courses.json") {
     if (-not (Test-Path ".\data")) { New-Item -ItemType Directory -Path ".\data" | Out-Null }
     Copy-Item ".\courses.json" ".\data\courses.json" -Force
+    if (Test-Path ".\stats_pmu.json") { Copy-Item ".\stats_pmu.json" ".\data\stats.json" -Force }
     Write-Host "data\courses.json en place" -ForegroundColor Green
     Write-Host ""
     $r = Read-Host "Publier maintenant sur GitHub ? (o/N)"
