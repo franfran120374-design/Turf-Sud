@@ -186,7 +186,16 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
   <div class="block">
     <h2>Backtest &amp; apprentissage</h2>
     <p class="hint">Rejoue le modèle actuel sur toutes les courses de l'historique qui ont une arrivée. L'optimisation ajuste les poids sur les 70 % les plus anciens et mesure sur les 30 % restants — c'est le seul chiffre qui compte.</p>
-    <div class="row" style="margin-top:10px">
+    <div id="baseBox" style="margin:11px 0;padding:10px;border:1px solid var(--ligne);border-radius:8px;background:var(--piste)">
+      <div class="row" style="align-items:center">
+        <div style="flex:1;min-width:0">
+          <b style="font-family:'Oswald',sans-serif;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em">Base d'entraînement</b>
+          <div class="mono" id="baseEtat" style="font-size:11px;color:var(--craie)">non chargée</div>
+        </div>
+        <button class="btn sm" id="baseBtn" onclick="chargerBase()">Charger</button>
+      </div>
+    </div>
+    <div class="row">
       <button class="btn" onclick="backtest()">Rejouer l'historique</button>
       <button class="btn pri" onclick="optimiser()">Apprendre les poids</button>
     </div>
@@ -290,6 +299,11 @@ const PISTES={
     disciplines:["trot_attele","trot_monte"],
     mult:{forme:1.0,regularite:1.15,fautes:1.25,driver:1.20,driverLocal:1.35,entraineur:1.0,gains:1.0,
           vitesse:1.10,progression:1.0,recul:1.45,deferre:1.15,fraicheur:1.0,age:1.0,aptPiste:1.30,corde:0.6,poids:1.0}},
+  pmu:{lat:46.6,lon:2.4,surface:'mixte',
+    note:"Base d'entraînement : hippodromes du réseau PMU. Aucun multiplicateur de piste — c'est voulu, les coefficients de Grenade et Carcassonne ne s'appliquent qu'à Grenade et Carcassonne.",
+    disciplines:["trot_attele","trot_monte","plat","obstacle"],
+    mult:{forme:1,regularite:1,fautes:1,driver:1,driverLocal:1,entraineur:1,gains:1,
+          vitesse:1,progression:1,recul:1,deferre:1,fraicheur:1,age:1,aptPiste:1,corde:1,poids:1}},
   carcassonne:{lat:43.22,lon:2.37,surface:'herbe',
     note:"1 200 m en herbe, 16 à 18 m de large, ligne droite de 240 à 250 m, corde à droite. Finale très courte : le placement prime. Deux réunions par an — presque aucune référence locale, et l'herbe encaisse mal la pluie.",
     disciplines:["trot_attele","trot_monte","plat","obstacle"],
@@ -342,6 +356,8 @@ let piste=store.get('ts_piste')||'grenade';
 let partants=J('ts_partants',[]);
 let histo=J('ts_histo',[]);
 let derniere=null;
+let base=[];          // base d'entraînement, en mémoire seulement
+let baseInfo=store.get('ts_base_info')||'';
 
 const num=v=>{if(v===''||v===null||v===undefined)return null;const n=parseFloat(String(v).replace(',','.'));return isFinite(n)?n:null};
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
@@ -708,9 +724,42 @@ function enregistrer(){
 /* ==================================================================
    Backtest et apprentissage des poids
    ================================================================== */
+/* La base est servie par GitHub Pages à côté de l'appli : un clic, aucun
+   sélecteur de fichier, et ça marche sur téléphone. Elle reste en mémoire —
+   4 Mo dans localStorage feraient sauter le quota, et elle est de toute
+   façon retéléchargeable à volonté. */
+async function chargerBase(){
+  const b=document.getElementById('baseBtn'), e=document.getElementById('baseEtat');
+  b.disabled=true;b.textContent='…';e.textContent='téléchargement…';
+  try{
+    const r=await fetch('./data/courses.json',{cache:'no-cache'});
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    if(!Array.isArray(d.courses))throw new Error('format');
+    base=d.courses.filter(c=>c.partants&&c.partants.length>=4&&c.arrivee&&c.arrivee.length)
+      .map(c=>({id:'base-'+c.date+'-'+c.nom,date:c.date,piste:'pmu',nom:c.nom,
+        ctx:{dist:c.distance||2400,piste:'pmu',disc:c.discipline||'trot_attele',terrain:c.terrain||'bon'},
+        n:c.partants.length,k:nbPlaces(c.partants.length),
+        brut:c.partants,arrivee:c.arrivee,rapports:c.rapportsPlace||null,lignes:[]}));
+    const d1=base.length?base.reduce((a,c)=>c.date<a?c.date:a,'9999'):'?';
+    const d2=base.length?base.reduce((a,c)=>c.date>a?c.date:a,'0'):'?';
+    baseInfo=`${base.length} courses · ${d1} → ${d2}`;
+    store.set('ts_base_info',baseInfo);
+    e.textContent=baseInfo;b.textContent='Recharger';
+    toast(base.length+' courses chargées');
+  }catch(err){
+    e.textContent=(err.message==='404')
+      ?"data/courses.json absent du site — lancez collecte.ps1 puis push.ps1"
+      :'échec : '+err.message;
+    b.textContent='Réessayer';
+  }
+  b.disabled=false;
+}
+
 function jouables(){
   return histo.filter(c=>c.arrivee&&c.arrivee.length&&c.brut&&c.brut.length>=4)
-              .slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+              .concat(base)
+              .sort((a,b)=>String(a.date).localeCompare(String(b.date)));
 }
 function rejouer(courses,poids){
   let ll=0,brier=0,nl=0,hits=0,picks=0,mises=0,retours=0;
@@ -953,6 +1002,7 @@ function setPiste(p){
 }
 document.getElementById('cDate').value=new Date().toISOString().slice(0,10);
 setPiste(piste);renderPartants();renderReglages();renderSuivi();
+if(baseInfo)document.getElementById('baseEtat').textContent=baseInfo+' (cliquez pour recharger)';
 if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
 </script>
 </body>

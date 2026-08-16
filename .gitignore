@@ -6,6 +6,9 @@ programmes.json
 urls.txt
 *.pdf
 turf-sud-*.json
+files/
+files.zip
+gitignore
 __pycache__/
 *.pyc
 .venv/

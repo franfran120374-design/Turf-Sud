@@ -1,0 +1,13 @@
+{
+  "source": "5 programmes officiels Grenade-sur-Garonne (23/11/2025, 14/12/2025, 21/12/2025, 25/01/2026, 15/08/2026)",
+  "courses": 37,
+  "note": "Nombre de drives sur les 5 réunions. Ce n'est PAS un taux de réussite : c'est la présence locale. Un driver très présent connaît la piste de 1 175 m corde à gauche.",
+  "drives": {
+    "F. CLOZIER": 25, "M. CRIADO": 24, "X. CHARLOT": 22, "D. LAISIS": 21,
+    "B. GOETZ": 21, "J. CHAVATTE": 21, "V. FOUCAULT": 20, "C. HERSERANT": 18,
+    "H. TREICH": 18, "P. GESRET": 16, "C. GAZENGEL": 16, "A. REDON": 16,
+    "N. LANGLOIS": 15, "G. METZLER": 15, "M. GRASSET": 14, "Q. MACHET": 13,
+    "Y. HENRY": 12, "B. OLICARD": 11, "D. CRESPEL": 11, "N. DESPRES": 11,
+    "Ax. LAIGRON": 11, "P. GERAY": 11
+  }
+}
