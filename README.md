@@ -170,3 +170,120 @@ python collecte.py parse --dry-run
 python collecte.py parse
 python collecte.py meteo          # enrichit courses.json (1 requête par journée)
 ```
+
+---
+
+## v6 — recalage sur 37 courses réelles de Grenade
+
+Analyse de 5 programmes officiels (23/11/2025, 14/12/2025, 21/12/2025, 25/01/2026, 15/08/2026).
+
+### Ce que les programmes contiennent — et ce qu'ils ne contiennent pas
+
+**Présents et exploitables** : date, discipline, distance, allocation, conditions
+d'âge et de gains, règle de recul, gains carrière, driver, sexe, âge, marqueurs
+apprenti/amateur, taille du peloton.
+
+**Absents** : arrivées, rapports, cotes. Les lignes `Arrivée : 1er .....` et
+`Mutuel : G ..... P .....` sont des pointillés vierges à remplir à la main.
+**Aucun backtest n'est possible à partir des seuls programmes.**
+
+**Illisibles sans OCR** : les noms des chevaux et la colonne des numéros utilisent
+des polices sous-ensemble sans table ToUnicode — vérifié, elles sortent en
+`(cid:1)(cid:2)(cid:3)`. Tout le reste s'extrait normalement. D'où l'option `--ocr`.
+
+### Les chiffres qui changent le modèle
+
+| Mesure | Valeur | Conséquence |
+|---|---|---|
+| Courses analysées | 37 sur 5 réunions | ~7,4 courses par réunion |
+| **Peloton médian** | **14 partants** | Le hasard place à 21 %, pas à 37 % |
+| Champs ≥ 8 partants | **92 %** | 3 places payées presque toujours |
+| Courses avec recul | 20 / 37 (54 %) | L'indicateur recul est central |
+| Amateurs / apprentis | 1 à 2 par réunion | Niveau de dispersion plus élevé |
+| Disciplines | 35 attelé, 2 monté | Grenade est du trot attelé |
+
+**Le peloton médian de 14 est le chiffre le plus important.** Tous les seuils
+avaient été calibrés sur 8 partants. Avec 14 chevaux et 3 places :
+
+- un cheval au hasard place **21 %** du temps (contre 37 % à 8 partants) ;
+- très peu de chevaux dépassent 50 % de probabilité de place ;
+- les rapports placés sont mécaniquement **plus longs** — la zone rentable
+  remonte vers 2,00–4,00 au lieu de 1,80–2,50 ;
+- le plancher de 1,45 ne bloque presque plus rien : c'est le seuil de value
+  à 12 % qui fait tout le travail.
+
+**Réglage corrigé** : proba de place minimale ramenée de 50 % à **35 %**.
+À 50 % le mode Régularité ne se serait quasiment jamais déclenché.
+
+### Drivers de Grenade
+
+Relevé de présence sur les 37 courses, consultable dans Réglages :
+F. CLOZIER (25 drives), M. CRIADO (24), X. CHARLOT (22), D. LAISIS (21),
+B. GOETZ (21), J. CHAVATTE (21), V. FOUCAULT (20)…
+
+Les 7 premiers assurent environ un tiers des drives. Ce n'est pas un taux de
+réussite — c'est la connaissance de la piste, qui justifie le coefficient ×1,35
+sur l'indicateur « driver sur cet hippodrome ».
+
+### Outils ajoutés
+
+- `parse_programme.py` — convertit les programmes PDF en JSON et en format de collage
+- `drivers-grenade.json` — le relevé brut
+- `push.ps1` — publication GitHub en une commande, incrémente le cache du service worker
+
+---
+
+## v7 — base d'entraînement PMU, toutes disciplines
+
+### Pourquoi une base extérieure à Grenade
+
+Vérifié sur l'API PMU : le 23/11/2025, Grenade **n'y figure pas du tout**
+(réunion 100 % PMH). Le 15/08/2026, une seule course sur sept y apparaît —
+celle qui portait le Quarté. L'API PMU ne peut donc pas fournir l'historique
+de Grenade.
+
+Mais 37 courses n'entraîneront jamais 14 poids. L'API PMU donne accès à des
+milliers de courses aux **variables strictement identiques** : musique, gains,
+driver, entraîneur, cotes, arrivée, rapports placés définitifs. On entraîne
+là-dessus, on applique à Grenade avec ses multiplicateurs de piste propres.
+
+### collecte_pmu.py
+
+```powershell
+pip install requests
+
+python collecte_pmu.py estimer   --debut 2024-08-01 --fin 2026-08-15
+python collecte_pmu.py collecter --debut 2024-08-01 --fin 2026-08-15
+python collecte_pmu.py stats
+python collecte_pmu.py exporter --limite 4000
+```
+
+Mesuré : **~52 courses par jour** en France, toutes disciplines. Sur 2 ans,
+~38 000 courses et ~77 000 requêtes, soit **2 à 3 heures** avec 3 threads.
+Cache disque, reprise automatique après Ctrl-C ou coupure réseau.
+
+**L'étape `stats` est celle qui justifie le volume.** L'API ne donne pas les
+taux de réussite : ils se calculent. Sur 3 000 courses on obtient un taux de
+place fiable par driver, par entraîneur, et par couple driver × hippodrome —
+exactement les colonnes `%driver`, `%driver_ici` et `%entraîneur` du collage.
+Un taux calculé sur 20 drives ne vaut rien, sur 400 il devient un indicateur.
+
+`exporter` limite à 4 000 courses par défaut, les plus récentes : au-delà, le
+JSON dépasse la capacité de stockage du navigateur.
+
+### Backtest passé en calcul analytique
+
+Rejouer 3 000 courses en Monte-Carlo aurait figé le navigateur, et
+l'optimiseur — 192 évaluations du jeu d'entraînement — aurait tourné des
+heures. Le backtest et l'optimiseur utilisent désormais la **formule de
+Harville**, exacte et déterministe.
+
+Mesuré : **3 000 courses rejouées en 52 ms**. Écart avec le Monte-Carlo à
+30 000 tirages : moins de 0,6 point sur chaque probabilité — c'est le bruit
+de la simulation, pas une erreur de la formule.
+
+Le Monte-Carlo reste utilisé pour l'analyse d'une course en direct, où il
+fournit aussi les probabilités jointes.
+
+L'optimiseur sous-échantillonne au-delà de 900 courses d'entraînement : le
+gain de précision y est nul et le coût, lui, ne l'est pas.

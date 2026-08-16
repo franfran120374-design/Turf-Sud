@@ -243,6 +243,12 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
     </div></details>
   </div>
   <div class="block">
+    <h2>Drivers de Grenade</h2>
+    <p class="hint">Nombre de drives relevés sur 37 courses (5 réunions, novembre 2025 → août 2026). Ce n'est pas un taux de réussite : c'est la <b>présence locale</b>. Un driver de ce tableau connaît les 1 175 m corde à gauche.</p>
+    <div id="drv" style="margin-top:10px"></div>
+  </div>
+
+  <div class="block">
     <h2>Poids des indicateurs</h2>
     <div id="poids"></div>
     <div class="row end" style="margin-top:9px"><button class="btn sm" onclick="resetPoids()">Réinitialiser</button></div>
@@ -319,12 +325,19 @@ const CRITERES=[
   {k:'poids',      l:'Poids porté',                  w:7,  disc:'plat'}
 ];
 
+/* Relevé réel sur 37 courses de Grenade — présence locale, pas taux de réussite */
+const DRIVERS_GRENADE={"F. CLOZIER":25,"M. CRIADO":24,"X. CHARLOT":22,"D. LAISIS":21,
+  "B. GOETZ":21,"J. CHAVATTE":21,"V. FOUCAULT":20,"C. HERSERANT":18,"H. TREICH":18,
+  "P. GESRET":16,"C. GAZENGEL":16,"A. REDON":16,"N. LANGLOIS":15,"G. METZLER":15,
+  "M. GRASSET":14,"Q. MACHET":13,"Y. HENRY":12,"B. OLICARD":11,"D. CRESPEL":11,
+  "N. DESPRES":11,"Ax. LAIGRON":11,"P. GERAY":11};
+
 const DEF={mode:'value',lambda:0.40,temp:1.2,sims:30000,bank:200,kelly:0.25,seuil:12,maxMise:3,
-  take:17.5,miseMin:1.5,pMin:50,rMin:1.45,miseFixe:3,cfgV:5,poids:Object.fromEntries(CRITERES.map(c=>[c.k,c.w]))};
+  take:17.5,miseMin:1.5,pMin:35,rMin:1.45,miseFixe:3,cfgV:6,poids:Object.fromEntries(CRITERES.map(c=>[c.k,c.w]))};
 let cfg=Object.assign({},DEF,J('ts_cfg',{}));
 CRITERES.forEach(c=>{if(cfg.poids[c.k]===undefined)cfg.poids[c.k]=c.w});
-if((cfg.cfgV||0)<5){   // migration : planchers de stratégie + mise fixe
-  cfg.mode='value';cfg.rMin=1.45;cfg.pMin=50;cfg.seuil=12;cfg.miseFixe=3;cfg.bank=150;cfg.cfgV=5;S('ts_cfg',cfg);}
+if((cfg.cfgV||0)<6){   // recalage sur 37 courses reelles de Grenade : peloton median 14 partants
+  cfg.mode='value';cfg.rMin=1.45;cfg.pMin=35;cfg.seuil=12;cfg.miseFixe=3;cfg.bank=150;cfg.cfgV=6;S('ts_cfg',cfg);}
 let piste=store.get('ts_piste')||'grenade';
 let partants=J('ts_partants',[]);
 let histo=J('ts_histo',[]);
@@ -403,6 +416,29 @@ function simuler(p,k,nSim){
     for(let i=0;i<K;i++)place[top[i]]++;
   }
   return{place:place.map(c=>c/nSim),gagne:gagne.map(c=>c/nSim),nSim};
+}
+
+/* Probabilité de finir dans les k premiers, formule de Harville.
+   Exacte, déterministe, ~10x plus rapide que la simulation : indispensable
+   pour rejouer des milliers de courses ou optimiser les poids. Le Monte-Carlo
+   reste utilisé pour l'analyse d'une course, où il donne aussi les jointes. */
+function harville(p,k){
+  const n=p.length,res=p.slice();
+  for(let i=0;i<n;i++){
+    let s=p[i];
+    if(k>=2)for(let j=0;j<n;j++){
+      if(j===i)continue;
+      const d1=1-p[j];if(d1<=1e-9)continue;
+      s+=p[j]*p[i]/d1;
+      if(k>=3)for(let l=0;l<n;l++){
+        if(l===i||l===j)continue;
+        const d2=1-p[j]-p[l];if(d2<=1e-9)continue;
+        s+=p[j]*(p[l]/d1)*(p[i]/d2);
+      }
+    }
+    res[i]=Math.min(1,s);
+  }
+  return res;
 }
 
 /* ---------- Moteur : probabilités de place ---------- */
@@ -676,13 +712,13 @@ function jouables(){
   return histo.filter(c=>c.arrivee&&c.arrivee.length&&c.brut&&c.brut.length>=4)
               .slice().sort((a,b)=>String(a.date).localeCompare(String(b.date)));
 }
-function rejouer(courses,poids,nSim){
+function rejouer(courses,poids){
   let ll=0,brier=0,nl=0,hits=0,picks=0,mises=0,retours=0;
   courses.forEach(c=>{
     const ctx=c.ctx||{dist:2400,piste:c.piste||'grenade',disc:'trot_attele',terrain:'bon'};
     const M=moteur(c.brut,ctx,poids);
     if(!M)return;
-    const sim=simuler(M.prob,M.k,nSim||6000);
+    const sim={place:harville(M.prob,M.k)};
     const podium=c.arrivee.slice(0,M.k).map(String);
     const dans=new Set(podium);
     let best=null;
@@ -711,7 +747,7 @@ function backtest(){
   const C=jouables();
   if(C.length<3){document.getElementById('btOut').innerHTML=
     '<p class="hint">Il faut au moins 3 courses avec une arrivée <b>et</b> des données brutes. Les courses importées via collecte.py comptent.</p>';return}
-  const r=rejouer(C,cfg.poids,8000);
+  const r=rejouer(C,cfg.poids);
   document.getElementById('btOut').innerHTML=`
     <div class="stat">
       <div><span>Courses rejouées</span><b>${C.length}</b></div>
@@ -727,10 +763,14 @@ function optimiser(){
     `<p class="hint">Seulement ${C.length} courses exploitables. En dessous de 15, l'optimisation apprend le bruit et pas le signal. Visez 40.</p>`;return}
   const coupe=Math.floor(C.length*0.7);
   const train=C.slice(0,coupe), test=C.slice(coupe);
+  // au-delà de 900 courses d'entraînement, on sous-échantillonne : le gain
+  // de précision devient nul et le navigateur, lui, se fige
+  const pas=Math.max(1,Math.ceil(train.length/900));
+  const ech=train.filter((_,i)=>i%pas===0);
   const crits=critActifs('trot_attele').map(c=>c.k);
   let W=Object.assign({},cfg.poids);
-  const avant=rejouer(test,W,6000);
-  const cout=w=>{const r=rejouer(train,w,4000);
+  const avant=rejouer(test,W);
+  const cout=w=>{const r=rejouer(ech,w);
     // régularisation vers les poids par défaut : 40 courses ne justifient pas des poids extrêmes
     let pen=0;crits.forEach(k=>{pen+=Math.pow((w[k]-DEF.poids[k])/12,2)});
     return r.ll+0.02*pen;};
@@ -746,13 +786,13 @@ function optimiser(){
       });
     });
   }
-  const apres=rejouer(test,W,6000);
+  const apres=rejouer(test,W);
   const gain=avant.ll-apres.ll;
   const chg=crits.filter(k=>W[k]!==cfg.poids[k])
     .map(k=>`${CRITERES.find(c=>c.k===k).l} ${cfg.poids[k]}→${W[k]}`);
   document.getElementById('btOut').innerHTML=`
     <div class="stat">
-      <div><span>Entraînement / test</span><b style="font-size:15px">${train.length} / ${test.length}</b></div>
+      <div><span>Entraînement / test</span><b style="font-size:15px">${ech.length} / ${test.length}</b></div>
       <div><span>Log-loss hors échantillon</span><b style="color:${gain>0?'var(--menthe)':'var(--brique)'}">${avant.ll.toFixed(4)} → ${apres.ll.toFixed(4)}</b></div>
     </div>
     <p class="hint" style="margin-top:9px">${gain>0
@@ -835,6 +875,9 @@ function renderReglages(){
   document.getElementById('oLambda').textContent=cfg.lambda.toFixed(2);
   document.getElementById('oTemp').textContent=cfg.temp.toFixed(1);
   document.getElementById('oSim').textContent=(cfg.sims/1000)+'k';
+  document.getElementById('drv').innerHTML='<table><tr><th>Driver</th><th>Drives</th><th></th></tr>'+
+    Object.entries(DRIVERS_GRENADE).sort((a,b)=>b[1]-a[1]).map(([n,v])=>
+    `<tr><td>${n}</td><td>${v}</td><td><div style="height:5px;background:var(--piste-3);border-radius:3px"><div style="height:100%;width:${v/25*100}%;background:var(--or);border-radius:3px"></div></div></td></tr>`).join('')+'</table>';
   document.getElementById('poids').innerHTML=CRITERES.map(c=>`
     <div class="wrow"><label for="w_${c.k}">${c.l}</label><output id="ow_${c.k}">${cfg.poids[c.k]}</output></div>
     <input type="range" id="w_${c.k}" min="0" max="35" step="1" value="${cfg.poids[c.k]}" oninput="setPoids('${c.k}',this.value)">`).join('');
