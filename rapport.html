@@ -1,0 +1,102 @@
+<!DOCTYPE html><html lang=fr><head><meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1">
+<title>Turf Sud — le modèle bat-il le marché ?</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600&family=Inter:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel=stylesheet>
+<style>
+:root{--bg:#0E2018;--bg2:#152C22;--l:#2A5341;--t:#EADFC8;--t2:#9DB0A2;
+      --ok:#59D9A4;--no:#C6442F;--warn:#F2B33D;--acc:#FF4D7E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:15px/1.5 Inter,system-ui,sans-serif;
+     padding:22px 16px 60px;max-width:820px;margin:auto}
+h1{font:600 26px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.03em;margin:0 0 4px}
+h2{font:600 15px Oswald,sans-serif;text-transform:uppercase;letter-spacing:.06em;
+    margin:32px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--l)}
+.sub{color:var(--t2);font-size:12.5px;font-family:'IBM Plex Mono',monospace;margin-bottom:24px}
+.verdict{border-radius:12px;padding:18px 20px;margin:20px 0;border:1px solid var(--l);background:var(--bg2)}
+.verdict.ok{border-color:var(--ok);background:#0D2A21}
+.verdict.no{border-color:var(--no);background:#26140F}
+.verdict.mid{border-color:var(--warn);background:#241E10}
+.verdict h3{font:600 21px Oswald,sans-serif;text-transform:uppercase;margin:0 0 8px;letter-spacing:.02em}
+.verdict.ok h3{color:var(--ok)} .verdict.no h3{color:var(--no)} .verdict.mid h3{color:var(--warn)}
+.verdict p{margin:0;color:var(--t2);font-size:13.5px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.card{background:var(--bg2);border:1px solid var(--l);border-radius:9px;padding:12px}
+.card span{display:block;font:600 9.5px Oswald,sans-serif;letter-spacing:.13em;
+            text-transform:uppercase;color:var(--t2)}
+.card b{display:block;font:500 21px 'IBM Plex Mono',monospace;margin-top:5px}
+.card small{display:block;color:var(--t2);font-size:11px;font-family:'IBM Plex Mono',monospace;margin-top:3px}
+table{width:100%;border-collapse:collapse;font:400 12.5px 'IBM Plex Mono',monospace;margin-top:6px}
+th{text-align:left;font:600 9.5px Oswald,sans-serif;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--t2);padding:7px 5px;border-bottom:1px solid var(--l)}
+td{padding:7px 5px;border-bottom:1px solid var(--l)}
+td.n{text-align:right;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:#1D3B2E;border-radius:3px;overflow:hidden;min-width:60px}
+.bar div{height:100%;border-radius:3px}
+.hint{color:var(--t2);font-size:12.5px}
+.chg{color:var(--t2);font-size:12px;font-family:'IBM Plex Mono',monospace;padding-left:20px}
+</style></head><body>
+
+<h1>Le modèle bat-il le marché ?</h1>
+<div class=sub>17/08/2026 08:53 · 4000 courses · 2025-12-22 → 2026-08-15 · trot_attele</div>
+
+<div class="verdict mid">
+  <h3>Écart trop faible pour conclure</h3>
+  <p>Le modèle est devant de 0.9 %, dans le bruit statistique. Il faudrait plusieurs milliers de courses supplémentaires pour trancher, et ce n'est pas de quoi miser.</p>
+</div>
+
+<h2>Qualité des probabilités</h2>
+<p class=hint>Le Brier mesure l'écart entre les probabilités annoncées et ce qui s'est
+réellement passé. <b>Plus bas = mieux.</b> Comparer au marché est indispensable :
+un bon score dans l'absolu ne veut rien dire.</p>
+<div class=grid>
+  <div class=card><span>Brier modèle</span><b style="color:var(--ok)">0.1513</b><small>49922 lignes cheval</small></div>
+  <div class=card><span>Brier marché</span><b>0.1527</b><small>déduit des cotes</small></div>
+  <div class=card><span>Log-loss modèle</span><b>0.46526</b></div>
+  <div class=card><span>Log-loss marché</span><b>0.46871</b></div>
+</div>
+
+<h2>Taux de réussite</h2>
+<p class=hint>Fréquence à laquelle le cheval le mieux noté termine dans les places.
+Chiffre trompeur pris seul : jouer le favori du marché suffit à le faire monter.</p>
+<div class=grid>
+  <div class=card><span>Top 1 modèle</span><b>59.0 %</b><small>2359 / 4000</small></div>
+  <div class=card><span>Top 1 marché</span><b>61.3 %</b><small>même méthode</small></div>
+</div>
+
+<h2>Rentabilité</h2>
+<p class=hint>Mises perdantes comprises. Le premier chiffre joue le mieux noté à chaque
+course ; le second n'applique que la stratégie réelle, seuil de value et rapport plancher.</p>
+<div class=grid>
+  <div class=card><span>ROI systématique</span>
+    <b style="color:var(--no)">-4.4 %</b>
+    <small>3985 paris</small></div>
+  <div class=card><span>ROI stratégie</span>
+    <b style="color:var(--no)">-100.0 %</b>
+    <small>1 paris, 0 gagnés</small></div>
+</div>
+
+<h2>Utilité de chaque indicateur</h2>
+<p class=hint>Chaque indicateur est retiré tour à tour. La perte est la dégradation de la
+log-loss × 1000 : <b>positive = l'indicateur sert</b>, nulle ou négative = il ne sert à rien
+et peut être supprimé.</p>
+<table><tr><th>Indicateur</th><th class=n>Poids</th><th class=n>Perte ×1000</th><th></th></tr>
+<tr><td>age</td><td class=n>5</td><td class=n>+0.04</td><td><div class=bar><div style='width:0.7913021643801699%;background:var(--no)'></div></div></td></tr><tr><td>driver</td><td class=n>10</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>driverLocal</td><td class=n>8</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>entraineur</td><td class=n>7</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>vitesse</td><td class=n>8</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>recul</td><td class=n>9</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>deferre</td><td class=n>6</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>fraicheur</td><td class=n>6</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>aptPiste</td><td class=n>7</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>corde</td><td class=n>7</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>poids</td><td class=n>7</td><td class=n>+0.00</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>gains</td><td class=n>11</td><td class=n>-0.01</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>progression</td><td class=n>8</td><td class=n>-0.35</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>fautes</td><td class=n>12</td><td class=n>-0.38</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>forme</td><td class=n>18</td><td class=n>-0.90</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr><tr><td>regularite</td><td class=n>20</td><td class=n>-0.92</td><td><div class=bar><div style='width:0%;background:var(--no)'></div></div></td></tr></table>
+
+<h2>Calibration</h2>
+<p class=hint>Sur les chevaux annoncés à 45–60 %, en placent-ils vraiment 45–60 % ?
+Vert = écart inférieur à 4 points.</p>
+<table><tr><th>Annoncé</th><th class=n>Lignes</th><th class=n>Prévu</th><th class=n>Réel</th></tr>
+<tr><td>0–15 %</td><td class=n>19489</td><td class=n>9 %</td><td class=n style='color:var(--ok)'>8 %</td></tr><tr><td>15–30 %</td><td class=n>15832</td><td class=n>22 %</td><td class=n style='color:var(--ok)'>22 %</td></tr><tr><td>30–45 %</td><td class=n>8278</td><td class=n>37 %</td><td class=n style='color:var(--ok)'>39 %</td></tr><tr><td>45–60 %</td><td class=n>4168</td><td class=n>52 %</td><td class=n style='color:var(--ok)'>52 %</td></tr><tr><td>60–100 %</td><td class=n>2155</td><td class=n>69 %</td><td class=n style='color:var(--ok)'>67 %</td></tr></table>
+
+
+
+<h2>Comment lire tout ça</h2>
+<p class=hint>Un seul chiffre décide : le Brier du modèle contre celui du marché.
+S'il est en dessous, le modèle apporte une information que les cotes n'ont pas, et il
+devient sensé de chercher la value. S'il est au-dessus, aucun réglage de mise ne
+sauvera la mise : il faut de meilleurs indicateurs, pas un meilleur seuil.<br><br>
+Le placé prélève environ 17,5 %. Un modèle simplement équivalent au marché perd donc
+17,5 % à long terme. Il ne s'agit pas d'égaler les cotes, mais de les battre
+suffisamment pour couvrir ce prélèvement.</p>
+
+</body></html>
