@@ -23,6 +23,7 @@ button,input,select,textarea{font-family:inherit;font-size:15px;color:inherit}
 button{cursor:pointer;border:none;background:none}
 header{position:sticky;top:0;z-index:40;background:linear-gradient(180deg,#0E2018 72%,rgba(14,32,24,0));padding:14px var(--sp) 18px}
 .brand{display:flex;align-items:baseline;gap:10px}
+.brand a:hover{border-color:var(--or)}
 .brand h1{font-size:23px;line-height:1}
 .brand .tag{font-size:10.5px;letter-spacing:.22em;color:var(--casaque);text-transform:uppercase;font-family:'Oswald',sans-serif}
 .pistebar{display:flex;gap:8px;margin-top:12px;border:1px solid var(--ligne);border-radius:var(--r);padding:4px;background:var(--piste-2)}
@@ -112,7 +113,8 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 <body>
 
 <header>
-  <div class="brand"><h1>Turf Sud</h1><span class="tag">Simple placé</span></div>
+  <div class="brand"><h1>Turf Sud</h1><span class="tag">Simple placé · v16</span>
+    <a href="rapport.html" style="margin-left:auto;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--or);text-decoration:none;border:1px solid var(--ligne);padding:4px 8px;border-radius:6px">Rapport</a></div>
   <div class="pistebar" role="group" aria-label="Hippodrome">
     <button data-piste="grenade" aria-pressed="true" onclick="setPiste('grenade')">Grenade<small>PMH · sable</small></button>
     <button data-piste="carcassonne" aria-pressed="false" onclick="setPiste('carcassonne')">Carcass.<small>herbe · droite</small></button>
@@ -153,6 +155,8 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
   <div class="block" id="jourBox" style="display:none">
     <h2>Réunions du jour <button class="btn gh sm" onclick="chargerJour()">Actualiser</button></h2>
     <p class="hint">Partants, cotes et musiques déjà remplis. Le fichier est produit chaque matin par <span class="mono">jour.py</span> et publié avec l'appli.</p>
+    <label class="f" style="margin:9px 0"><span>Date de la réunion</span>
+      <input type="date" id="jourDate" onchange="jour=null;chargerJour()"></label>
     <div id="jourEtat" class="hint mono" style="margin:8px 0"></div>
     <div class="grid" id="jourSel" style="display:none">
       <label class="f"><span>Réunion</span><select id="jourR" onchange="majCourses()"></select></label>
@@ -201,6 +205,23 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 <section id="s-analyse"><div id="anaOut"><p class="empty">Chargez des partants, puis lancez l'analyse.</p></div></section>
 
 <section id="s-suivi">
+  <div class="block" id="evalBox">
+    <h2>Le modèle bat-il le marché ?</h2>
+    <p class="hint">Calcul automatique sur la base publiée. Aucune commande, aucun fichier à déplacer.</p>
+    <div class="grid" style="margin-top:10px">
+      <label class="f"><span>Discipline</span>
+        <select id="evDisc" onchange="evaluer()">
+          <option value="trot_attele">Trot attelé</option>
+          <option value="">Toutes</option>
+          <option value="trot_monte">Trot monté</option>
+          <option value="plat">Plat</option>
+          <option value="obstacle">Obstacle</option>
+        </select></label>
+      <label class="f"><span>Depuis le</span><input type="date" id="evDepuis" onchange="evaluer()"></label>
+    </div>
+    <div id="evOut" style="margin-top:12px"></div>
+  </div>
+
   <div class="block">
     <h2>Résultats réels</h2>
     <div class="stat" id="statSuivi"></div>
@@ -291,6 +312,7 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 
   <div class="block">
     <h2>Poids des indicateurs</h2>
+    <div id="poidsAppris" class="hint mono" style="margin-bottom:10px;color:var(--menthe)"></div>
     <div id="poids"></div>
     <div class="row end" style="margin-top:9px"><button class="btn sm" onclick="resetPoids()">Réinitialiser</button></div>
   </div>
@@ -403,7 +425,12 @@ function nbPlaces(n){return n>=8?3:(n>=4?2:0)}
 function lireMusique(m){
   const vide={forme:null,regularite:null,fautes:null,progression:null};
   if(!m)return vide;
-  const tok=String(m).toUpperCase().match(/(\d{1,2}|D|A|T|R)[AMHSPC]?/g);
+  // (25), (24)… sont des separateurs d'annee, pas des places.
+  // Sans ce nettoyage ils etaient lus comme une 25e place : un cheval
+  // perdait 14 points de forme par marqueur, et d'autant plus qu'il
+  // avait de passe. Verifie sur les partants de Deauville.
+  const tok=String(m).toUpperCase().replace(/\(\s*\d+\s*\)/g,' ')
+                     .match(/(\d{1,2}|D|A|T|R)[AMHSPC]?/g);
   if(!tok||!tok.length)return vide;
   const note=t=>{const c=t[0];
     if('DATR'.includes(c)&&isNaN(c))return 0;
@@ -638,7 +665,8 @@ async function chargerJour(){
   const viaProxy=!!cfg.proxy;
   e.textContent=viaProxy?'relais… (réveil possible, jusqu\'à 60 s)':'chargement…';
   try{
-    const url=viaProxy?cfg.proxy.replace(/\/$/,'')+'/api/jour/'+aujourdhui():'./data/jour.json';
+    const dj=(document.getElementById('jourDate')||{}).value||aujourdhui();
+    const url=viaProxy?cfg.proxy.replace(/\/$/,'')+'/api/jour/'+dj:'./data/jour.json';
     const r=await fetch(url,{cache:'no-cache'});
     if(!r.ok)throw new Error(r.status);
     jour=await r.json();
@@ -665,6 +693,21 @@ async function chargerJour(){
       :'échec : '+err.message;
   }
 }
+/* Poids appris par soir.py. Seuls ceux qui ont battu les anciens sur
+   des courses jamais vues pendant l'ajustement y sont écrits. */
+async function chargerPoidsAppris(){
+  try{
+    const r=await fetch('./data/poids.json',{cache:'no-cache'});
+    if(!r.ok)return null;
+    const d=await r.json();
+    if(!d||!d.poids)return null;
+    Object.assign(cfg.poids,d.poids);S('ts_cfg',cfg);
+    const e=document.getElementById('poidsAppris');
+    if(e)e.innerHTML=`poids appris le <b>${esc(d.maj)}</b> sur ${d.courses} courses · brier ${d.brier_test} · top 1 ${(d.taux_top1*100).toFixed(0)} %`;
+    return d;
+  }catch(e){return null}
+}
+
 let statsPMU=null;
 async function appliquerStats(){
   if(!jour)return;
@@ -948,6 +991,105 @@ async function chargerBase(){
   b.disabled=false;
 }
 
+/* ==================================================================
+   Évaluation automatique. Tout ce que faisait rapport.py tourne ici :
+   Harville met 52 ms pour 3 000 courses, le navigateur n'a aucune
+   raison de sous-traiter ça à un script.
+   ================================================================== */
+async function evaluer(){
+  const O=document.getElementById('evOut');
+  O.innerHTML='<p class="empty">Calcul…</p>';
+  if(!base.length)await chargerBase();
+  if(!base.length){O.innerHTML='<p class="empty">Base absente.<br>Publiez <span class="mono">data/courses.json</span> une seule fois, puis ce calcul se fera seul.</p>';return}
+  const disc=document.getElementById('evDisc').value;
+  const depuis=document.getElementById('evDepuis').value;
+  const C=base.filter(c=>(!disc||(c.ctx&&c.ctx.disc)===disc)&&(!depuis||c.date>=depuis));
+  if(C.length<50){O.innerHTML=`<p class="empty">${C.length} courses seulement avec ces filtres.</p>`;return}
+  await new Promise(r=>setTimeout(r,20));
+  const R=mesurer(C,cfg.poids);
+  const crits=critActifs(disc||'trot_attele').map(c=>c.k);
+  const abl=crits.map(k=>{const W=Object.assign({},cfg.poids);W[k]=0;
+    return{k,w:cfg.poids[k],perte:(mesurer(C,W).ll-R.ll)*1000}}).sort((a,b)=>b.perte-a.perte);
+  const mieux=R.brierQ!=null&&R.brier<R.brierQ;
+  const ec=R.brierQ!=null?(R.brierQ-R.brier)/R.brierQ*100:null;
+  const v=ec==null?['Pas de cotes exploitables','no',"Impossible de comparer au marché."]
+    :ec>1.5?['Le modèle bat le marché','ok',`Ses probabilités de place sont plus justes que celles des cotes, de ${ec.toFixed(1)} %. Condition nécessaire pour gagner, pas suffisante : le prélèvement de 17,5 % reste à franchir.`]
+    :ec>0?['Écart trop faible pour conclure','warn',`Le modèle est devant de ${ec.toFixed(1)} %, dans le bruit statistique. Égaler le marché revient à perdre le prélèvement.`]
+    :['Le marché reste meilleur','no',`Les cotes prédisent mieux les places (${(-ec).toFixed(1)} % d'écart). Aucun réglage de mise n'y changera rien : il faut de meilleurs indicateurs.`];
+  const coul=v[1]==='ok'?'var(--menthe)':(v[1]==='no'?'var(--brique)':'var(--or)');
+  const pc=x=>x==null?'—':(x*100).toFixed(1)+' %';
+  O.innerHTML=`
+  <div style="border:1px solid ${coul};border-radius:9px;padding:13px;margin-bottom:12px">
+    <b style="font-family:'Oswald',sans-serif;font-size:16px;text-transform:uppercase;color:${coul}">${v[0]}</b>
+    <p class="hint" style="margin-top:6px">${v[2]}</p></div>
+  <div class="stat">
+    <div><span>Courses</span><b>${C.length}</b></div>
+    <div><span>Brier modèle / marché</span><b style="font-size:14px;color:${mieux?'var(--menthe)':'var(--brique)'}">${R.brier.toFixed(4)} / ${R.brierQ!=null?R.brierQ.toFixed(4):'—'}</b></div>
+    <div><span>Top 1 modèle / marché</span><b style="font-size:14px">${pc(R.taux)} / ${pc(R.tauxQ)}</b></div>
+    <div><span>ROI placé</span><b style="color:${(R.roi||-1)>0?'var(--menthe)':'var(--brique)'}">${R.roi==null?'—':(R.roi>0?'+':'')+R.roi.toFixed(1)+' %'}</b></div>
+  </div>
+  <h3 style="font-size:12.5px;margin:18px 0 6px;color:var(--craie);font-family:'Oswald',sans-serif;text-transform:uppercase">Utilité de chaque indicateur</h3>
+  <p class="hint">Perte de log-loss ×1000 quand on le retire. <b>Positive = il sert.</b> Nulle = le champ est vide dans les données. Négative = il dégrade le modèle.</p>
+  <table style="margin-top:6px"><tr><th>Indicateur</th><th style="text-align:right">Poids</th><th style="text-align:right">Perte</th><th></th></tr>
+  ${abl.map(a=>`<tr><td>${esc((CRITERES.find(c=>c.k===a.k)||{l:a.k}).l)}</td><td style="text-align:right">${a.w}</td>
+    <td style="text-align:right;color:${a.perte>0.05?'var(--menthe)':(a.perte<-0.05?'var(--brique)':'var(--craie)')}">${a.perte>0?'+':''}${a.perte.toFixed(2)}</td>
+    <td><div style="height:5px;background:var(--piste-3);border-radius:3px"><div style="height:100%;width:${Math.min(100,Math.abs(a.perte)*40)}%;background:${a.perte>0?'var(--menthe)':'var(--brique)'};border-radius:3px"></div></div></td></tr>`).join('')}
+  </table>
+  <h3 style="font-size:12.5px;margin:18px 0 6px;color:var(--craie);font-family:'Oswald',sans-serif;text-transform:uppercase">Calibration</h3>
+  <table><tr><th>Annoncé</th><th style="text-align:right">Lignes</th><th style="text-align:right">Prévu</th><th style="text-align:right">Réel</th></tr>
+  ${R.cal.filter(b=>b.n).map(b=>`<tr><td>${b.de}–${b.a} %</td><td style="text-align:right">${b.n}</td>
+    <td style="text-align:right">${b.prevu.toFixed(0)} %</td>
+    <td style="text-align:right;color:${Math.abs(b.reel-b.prevu)<4?'var(--menthe)':'var(--or)'}">${b.reel.toFixed(0)} %</td></tr>`).join('')}
+  </table>`;
+}
+
+function mesurer(courses,poids){
+  let ll=0,br=0,nl=0,llQ=0,brQ=0,nlQ=0,hits=0,picks=0,hitsQ=0,picksQ=0,mises=0,ret=0;
+  const bins=[[0,.15],[.15,.30],[.30,.45],[.45,.60],[.60,1.01]];
+  const cal=bins.map(()=>[0,0,0]);
+  courses.forEach(c=>{
+    const ctx=c.ctx||{dist:2400,piste:'pmu',disc:'trot_attele',terrain:'bon'};
+    const M=moteur(c.brut,ctx,poids);
+    if(!M)return;
+    const pl=harville(M.prob,M.k);
+    const pod=c.arrivee.slice(0,M.k).map(String), dans=new Set(pod);
+    let best=null;
+    c.brut.forEach((p,i)=>{
+      const y=dans.has(String(p.num))?1:0;
+      const q=Math.min(Math.max(pl[i],1e-6),1-1e-6);
+      ll-=y*Math.log(q)+(1-y)*Math.log(1-q);br+=(q-y)*(q-y);nl++;
+      const b=bins.findIndex(([a,z])=>q>=a&&q<z);
+      if(b>=0){cal[b][0]++;cal[b][1]+=y;cal[b][2]+=q}
+      if(!best||q>best.q)best={q,num:p.num,i};
+    });
+    if(M.aCotes){
+      const pq=harville(M.marche.map(v=>v||1e-6),M.k);
+      let bq=null;
+      c.brut.forEach((p,i)=>{
+        const y=dans.has(String(p.num))?1:0;
+        const q=Math.min(Math.max(pq[i],1e-6),1-1e-6);
+        llQ-=y*Math.log(q)+(1-y)*Math.log(1-q);brQ+=(q-y)*(q-y);nlQ++;
+        if(!bq||pq[i]>bq.q)bq={q:pq[i],num:p.num};
+      });
+      if(bq){picksQ++;if(dans.has(String(bq.num)))hitsQ++}
+    }
+    if(best){
+      picks++;
+      const y=dans.has(String(best.num))?1:0;
+      if(y)hits++;
+      const r=c.rapports;
+      if(r&&r.length>=M.k&&r.slice(0,M.k).every(x=>x>1)){
+        mises++;if(y)ret+=r[pod.indexOf(String(best.num))];
+      }
+    }
+  });
+  return{ll:nl?ll/nl:null,brier:nl?br/nl:null,llQ:nlQ?llQ/nlQ:null,brierQ:nlQ?brQ/nlQ:null,
+    taux:picks?hits/picks:null,tauxQ:picksQ?hitsQ/picksQ:null,
+    roi:mises?(ret-mises)/mises*100:null,mises,
+    cal:bins.map(([a,z],i)=>({de:a*100,a:Math.min(z*100,100),n:cal[i][0],
+      prevu:cal[i][0]?cal[i][2]/cal[i][0]*100:null,reel:cal[i][0]?cal[i][1]/cal[i][0]*100:null}))};
+}
+
 function jouables(){
   return histo.filter(c=>c.arrivee&&c.arrivee.length&&c.brut&&c.brut.length>=4)
               .concat(base)
@@ -955,32 +1097,55 @@ function jouables(){
 }
 function rejouer(courses,poids){
   let ll=0,brier=0,nl=0,hits=0,picks=0,mises=0,retours=0;
+  let brierQ=0,nq=0,hitsQ=0,picksQ=0;
   courses.forEach(c=>{
     const ctx=c.ctx||{dist:2400,piste:c.piste||'grenade',disc:'trot_attele',terrain:'bon'};
     const M=moteur(c.brut,ctx,poids);
     if(!M)return;
-    const sim={place:harville(M.prob,M.k)};
+    const pl=harville(M.prob,M.k);
     const podium=c.arrivee.slice(0,M.k).map(String);
     const dans=new Set(podium);
     let best=null;
     c.brut.forEach((p,i)=>{
       const y=dans.has(String(p.num))?1:0;
-      const q=Math.min(Math.max(sim.place[i],1e-6),1-1e-6);
+      const q=Math.min(Math.max(pl[i],1e-6),1-1e-6);
       ll-=y*Math.log(q)+(1-y)*Math.log(1-q);
       brier+=(q-y)*(q-y);nl++;
       if(!best||q>best.q)best={q,num:p.num,i};
     });
+
+    // Le marché, traité exactement comme le modèle. C'est le seul
+    // point de comparaison qui vaille : battre le hasard ne prouve
+    // rien, battre les cotes prouve tout.
+    if(M.aCotes){
+      const plQ=harville(M.marche.map(v=>v||1e-6),M.k);
+      let bq=null;
+      c.brut.forEach((p,i)=>{
+        const y=dans.has(String(p.num))?1:0;
+        brierQ+=(plQ[i]-y)*(plQ[i]-y);nq++;
+        if(!bq||plQ[i]>bq.q)bq={q:plQ[i],num:p.num};
+      });
+      if(bq){picksQ++;if(dans.has(String(bq.num)))hitsQ++}
+    }
+
     if(best){
       picks++;
       const y=dans.has(String(best.num))?1:0;
       if(y)hits++;
-      const ligne=(c.lignes||[]).find(l=>String(l.num)===String(best.num));
-      const pos=podium.findIndex(x=>x===String(best.num));
-      const rap=(c.rapports&&c.rapports[pos])||(ligne&&ligne.cotePlace)||null;
-      if(rap){mises+=1;if(y)retours+=rap}
+      // Une mise perdue est une mise. L'ancienne version ne comptait
+      // que les paris gagnants — seuls les chevaux placés ont un
+      // rapport — et sortait un ROI de +55 %, soit le rapport placé
+      // moyen moins un. Il faut donc des rapports complets, et
+      // compter la mise dans tous les cas.
+      const rap=c.rapports;
+      if(rap&&rap.length>=M.k&&rap.slice(0,M.k).every(x=>x>1)){
+        mises+=1;
+        if(y){const pos=podium.indexOf(String(best.num));retours+=rap[pos]}
+      }
     }
   });
   return{ll:nl?ll/nl:null,brier:nl?brier/nl:null,nl,
+    brierQ:nq?brierQ/nq:null,tauxQ:picksQ?hitsQ/picksQ:null,
     taux:picks?hits/picks:null,picks,hits,
     roi:mises?(retours-mises)/mises*100:null,mises};
 }
@@ -989,14 +1154,22 @@ function backtest(){
   if(C.length<3){document.getElementById('btOut').innerHTML=
     '<p class="hint">Il faut au moins 3 courses avec une arrivée <b>et</b> des données brutes. Les courses importées via collecte.py comptent.</p>';return}
   const r=rejouer(C,cfg.poids);
+  const mieux=r.brierQ!=null&&r.brier<r.brierQ;
+  const ecart=r.brierQ!=null?((r.brierQ-r.brier)/r.brierQ*100):null;
   document.getElementById('btOut').innerHTML=`
     <div class="stat">
       <div><span>Courses rejouées</span><b>${C.length}</b></div>
-      <div><span>Top 1 placé</span><b style="color:var(--menthe)">${(r.taux*100).toFixed(0)} %</b></div>
-      <div><span>Brier place</span><b>${r.brier.toFixed(4)}</b></div>
-      <div><span>ROI si misé</span><b style="color:${r.roi>=0?'var(--menthe)':'var(--brique)'}">${r.roi===null?'—':(r.roi>0?'+':'')+r.roi.toFixed(1)+' %'}</b></div>
+      <div><span>Top 1 · modèle / marché</span><b style="font-size:15px">${(r.taux*100).toFixed(0)} % / ${r.tauxQ!=null?(r.tauxQ*100).toFixed(0)+' %':'—'}</b></div>
+      <div><span>Brier · modèle / marché</span><b style="font-size:15px;color:${mieux?'var(--menthe)':'var(--brique)'}">${r.brier.toFixed(4)} / ${r.brierQ!=null?r.brierQ.toFixed(4):'—'}</b></div>
+      <div><span>ROI placé</span><b style="color:${r.roi>=0?'var(--menthe)':'var(--brique)'}">${r.roi===null?'—':(r.roi>0?'+':'')+r.roi.toFixed(1)+' %'}</b></div>
     </div>
-    <p class="hint" style="margin-top:9px">Sur ${C.length} courses, ${r.hits} fois sur ${r.picks} le cheval le mieux noté a terminé dans les places. Un taux élevé avec un ROI négatif signifie que vous visez juste mais que vous payez trop cher.</p>`;
+    <p class="hint" style="margin-top:9px">
+      ${r.brierQ==null?'Pas assez de cotes pour comparer au marché.'
+      :(mieux?`<b style="color:var(--menthe)">Le modèle bat le marché de ${ecart.toFixed(1)} %</b> sur la qualité des probabilités.`
+             :`<b style="color:var(--brique)">Le marché reste meilleur de ${(-ecart).toFixed(1)} %.</b> Sans avantage sur les cotes, miser fait perdre le prélèvement.`)}
+      ${r.mises?` ROI calculé sur ${r.mises} paris, gagnants et perdants.`:' Aucun rapport placé exploitable pour le ROI.'}
+    </p>
+    <p class="hint" style="margin-top:6px">Le Brier est le juge : plus bas = mieux. Le taux de réussite seul ne dit rien, puisqu'il suffit de jouer le favori pour le faire monter.</p>`;
 }
 function optimiser(){
   const C=jouables();
@@ -1179,7 +1352,7 @@ function tab(id,btn){
   document.querySelectorAll('nav button').forEach(b=>b.setAttribute('aria-pressed','false'));
   btn.setAttribute('aria-pressed','true');
   if(id==='jour'&&!window._jourLignes)tableauJour();
-  if(id==='suivi')renderSuivi();
+  if(id==='suivi'){renderSuivi();if(!document.getElementById('evOut').innerHTML)evaluer()}
   if(id==='reglages')renderReglages();
   window.scrollTo({top:0,behavior:'instant'});
 }
@@ -1196,10 +1369,23 @@ function setPiste(p){
   renderPartants();
 }
 document.getElementById('cDate').value=new Date().toISOString().slice(0,10);
+var _dj=document.getElementById('jourDate');if(_dj)_dj.value=new Date().toISOString().slice(0,10);
 setPiste(piste);renderPartants();renderReglages();renderSuivi();
+chargerPoidsAppris().then(d=>{if(d)renderReglages()});
 if(baseInfo)document.getElementById('baseEtat').textContent=baseInfo+' (cliquez pour recharger)';
 if(piste==='pmu')chargerJour();
-if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+/* Pas de mise en cache tant que le modele bouge. On se contente de
+   nettoyer ce que les versions precedentes ont laisse : sans ca, un
+   navigateur qui a deja vu l'appli continue de servir l'ancienne page
+   quel que soit le nombre de rechargements forces. */
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.getRegistrations().then(rs=>{
+    if(rs.length)Promise.all(rs.map(r=>r.unregister()))
+      .then(()=>caches.keys())
+      .then(k=>Promise.all(k.map(c=>caches.delete(c))))
+      .then(()=>{if(!sessionStorage.getItem('__nettoye')){sessionStorage.setItem('__nettoye','1');location.reload()}});
+  }).catch(()=>{});
+}
 </script>
 </body>
 </html>
