@@ -169,6 +169,14 @@ def collecte_course(meta):
             if comb and div:
                 cible[comb] = round(div / 100, 2)   # centimes -> euros
 
+    # Correspondances decouvertes en inspectant l'API : ces champs
+    # arrivent en texte, ou sous des noms que l'export ignorait.
+    DEF = {"REFERRE": 0, "DEFERRE_ANTERIEURS": 1, "PROTEGE_ANTERIEURS": 1,
+           "DEFERRE_POSTERIEURS": 2, "PROTEGE_POSTERIEURS": 2,
+           "DEFERRE_QUATRE_PIEDS": 3, "PROTEGE_QUATRE_PIEDS": 3,
+           "PROTEGE_ANTERIEURS_POSTERIEURS": 3}
+    dist_base = meta.get("distance")
+
     partants = []
     for x in part["participants"]:
         g = x.get("gainsParticipant") or {}
@@ -195,9 +203,23 @@ def collecte_course(meta):
             "corde": x.get("placeCorde"),
             "poids": x.get("handicapPoids"),
             "valeur": x.get("handicapValeur"),
-            "deferre": x.get("deferre"),
+            # deferre arrive en texte : sans cette conversion l'indicateur
+            # etait neutralise en silence et sortait a +0.00 en ablation
+            "deferre": DEF.get(str(x.get("deferre") or "").upper()),
+            "deferre_txt": x.get("deferre"),
+            # recul reel = distance du cheval moins distance de base
+            "recul": ((x.get("handicapDistance") or 0) - dist_base)
+                     if (dist_base and x.get("handicapDistance")) else None,
+            # reduction kilometrique en millisecondes -> secondes au km
+            "rk": (x.get("reductionKilometrique") / 1000.0)
+                  if x.get("reductionKilometrique") else None,
+            # taux de place en carriere : une regularite qui ne vient pas
+            # de la musique, donc moins susceptible d'etre deja dans les cotes
+            "tauxPlace": round(100 * (x.get("nombrePlaces") or 0) / nc, 1) if nc else None,
             "oeilleres": x.get("oeilleres"),
             "driverChange": x.get("driverChange"),
+            "supplement": x.get("supplement"),
+            "avisEntraineur": x.get("avisEntraineur"),
             "inedit": x.get("indicateurInedit"),
             "statut": x.get("statut"),
             "arrivee": x.get("ordreArrivee"),
@@ -367,7 +389,11 @@ def cmd_exporter(a):
                 "driver": drv.get("taux"), "driverLocal": loc.get("taux"),
                 "entraineur": ent.get("taux"), "gains": p["gains"],
                 "age": p["age"], "corde": p["corde"], "poids": p["poids"],
-                "deferre": p["deferre"], "vitesse": p["valeur"],
+                "deferre": p["deferre"], "recul": p.get("recul"),
+                "vitesse": p.get("rk") or p["valeur"],
+                "tauxPlace": p.get("tauxPlace"),
+                "driverChange": 1 if p.get("driverChange") else 0,
+                "oeilleres": p.get("oeilleres"),
             })
         courses.append({
             "date": m["jour"], "piste": "pmu", "hippodrome": hip,

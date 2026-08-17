@@ -253,13 +253,17 @@ def optimiser(train, test, depart):
         r = evaluer(ech, w)
         if r["ll"] is None:
             return 1e9
+        # Penalite calibree sur l'ordre de grandeur reel des gains de
+        # log-loss (~0.001). A 0.02 elle valait 0.0022 pour un simple pas
+        # de 4 points : l'optimiseur refusait TOUT changement et sortait
+        # un gain de +0.00000 quoi qu'il arrive.
         pen = sum(((w[k] - CRITERES[k]) / 12) ** 2 for k in w)
-        return r["ll"] + 0.02 * pen
+        return r["ll"] + 0.0004 * pen
 
     best = cout(W)
-    for _ in range(3):
+    for _ in range(4):
         for k in list(W):
-            for d in (-4, -2, 2, 4):
+            for d in (-8, -5, -3, -1, 1, 3, 5):
                 v = max(0, min(35, W[k] + d))
                 if v == W[k]:
                     continue

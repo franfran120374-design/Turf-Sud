@@ -43,8 +43,25 @@ SORTIE = "rapport.html"
 
 
 # ----------------------------------------------------------------------
+def charger_taux():
+    """stats_pmu.json contient les taux de reussite. Sans cette injection,
+    le champ `driver` des donnees brutes contient le NOM du driver, que le
+    modele n'arrive pas a convertir en nombre : l'indicateur est neutralise
+    en silence. C'est ce qui donnait 11 ablations a exactement +0.00."""
+    f = "stats_pmu.json"
+    if not os.path.exists(f):
+        print("  stats_pmu.json absent : driver/entraineur resteront vides")
+        return {}, {}, {}
+    d = json.load(open(f, encoding="utf-8"))
+    print(f"  taux injectes : {len(d.get('drivers', {}))} drivers, "
+          f"{len(d.get('entraineurs', {}))} entraineurs")
+    return (d.get("drivers", {}), d.get("entraineurs", {}),
+            d.get("drivers_par_hippodrome", {}))
+
+
 def charger(limite, discipline):
     print("Lecture du cache…", end=" ", flush=True)
+    td, te, tdh = charger_taux()
     courses = []
     for d in C.charger_cache():
         arr = d.get("arrivee") or []
@@ -56,6 +73,12 @@ def charger(limite, discipline):
         m = d["meta"]
         if discipline and m.get("discipline") != discipline:
             continue
+        hip = m.get("hippodrome") or ""
+        for p in P:
+            dn, en = p.get("driver"), p.get("entraineur")
+            p["driver"] = (td.get(dn) or {}).get("taux") if isinstance(dn, str) else dn
+            p["entraineur"] = (te.get(en) or {}).get("taux") if isinstance(en, str) else en
+            p["driverLocal"] = (tdh.get(f"{dn} @ {hip}") or {}).get("taux")
         courses.append({"date": m["jour"], "hippodrome": m.get("hippodrome"),
                         "discipline": m.get("discipline"),
                         "distance": m.get("distance"), "partants": P, "arrivee": arr,

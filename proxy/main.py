@@ -15,8 +15,9 @@ Apport par rapport a jour.py :
   - plus de publication quotidienne sur GitHub
 
 ENDPOINTS
-  GET /sante                    etat du service
-  GET /jour                     reunions du jour, format de l'appli
+  GET /health                   etat du service (utilise par l'appli)
+  GET /api/jour/AAAA-MM-JJ      reunions du jour (utilise par l'appli)
+  GET /jour                     idem, date en parametre
   GET /jour?date=2026-08-20     une autre date
   GET /jour?monde=1             inclure l'etranger
   GET /course/20082026/R3/C4    une course, cotes fraiches
@@ -104,7 +105,15 @@ def fmt_date(iso: str) -> str:
     return f"{j}{m}{a}"
 
 
-def convertir_partant(x: Dict) -> Optional[Dict]:
+# Correspondances relevees en inspectant l'API : ces champs arrivent en
+# texte, et l'ancien export les jetait ou les laissait illisibles.
+DEFERRE = {"REFERRE": 0, "DEFERRE_ANTERIEURS": 1, "PROTEGE_ANTERIEURS": 1,
+           "DEFERRE_POSTERIEURS": 2, "PROTEGE_POSTERIEURS": 2,
+           "DEFERRE_QUATRE_PIEDS": 3, "PROTEGE_QUATRE_PIEDS": 3,
+           "PROTEGE_ANTERIEURS_POSTERIEURS": 3}
+
+
+def convertir_partant(x: Dict, dist_base: Optional[int] = None) -> Optional[Dict]:
     """Traduit un participant PMU vers le format attendu par l'appli."""
     if x.get("statut") == "NON_PARTANT":
         return None
@@ -121,20 +130,32 @@ def convertir_partant(x: Dict) -> Optional[Dict]:
         "musique": x.get("musique"),
         "driver": None, "driverLocal": None, "entraineur": None,
         "gains": round(carriere / nc) if nc else None,
-        "vitesse": x.get("handicapValeur"),
-        "recul": None,
-        "deferre": x.get("deferre"),
+
         "jours": None,
         "age": x.get("age"),
         "aptPiste": None,
         "corde": x.get("placeCorde"),
         "poids": x.get("handicapPoids"),
-        "_driver": x.get("driver"),
-        "_entraineur": x.get("entraineur"),
+        "driverNom": x.get("driver"),
+        "entraineurNom": x.get("entraineur"),
+        # deferre en texte -> 0..3, sinon l'indicateur est neutralise
+        "deferre": DEFERRE.get(str(x.get("deferre") or "").upper()),
+        # recul reel = distance du cheval moins distance de base
+        "recul": ((x.get("handicapDistance") or 0) - dist_base)
+                 if (dist_base and x.get("handicapDistance")) else None,
+        # reduction kilometrique en millisecondes -> secondes au km
+        "vitesse": (x.get("reductionKilometrique") / 1000.0)
+                   if x.get("reductionKilometrique") else x.get("handicapValeur"),
+        # regularite de carriere : ne vient pas de la musique, donc moins
+        # susceptible d'etre deja entierement dans les cotes
+        "tauxPlace": (round(100 * (x.get("nombrePlaces") or 0) / nc, 1) if nc else None),
+        "driverChange": 1 if x.get("driverChange") else 0,
+        "arrivee": x.get("ordreArrivee"),
     }
 
 
 @app.get("/")
+@app.get("/health")
 @app.get("/sante")
 async def sante():
     return {"service": "Turf Sud - relais PMU", "etat": "ok",
@@ -155,6 +176,77 @@ async def course(jour: str, r: int, c: int):
     partants = [p for p in (convertir_partant(x) for x in d["participants"]) if p]
     return cache_set(cle, {"jour": jour, "r": r, "c": c,
                            "maj": int(time.time()), "partants": partants})
+
+
+@app.get("/api/resultats/{date_iso}")
+async def resultats(date_iso: str, discipline: Optional[str] = Query(None),
+                    monde: int = Query(0)):
+    """Une journee complete AVEC les arrivees et les rapports places.
+
+    C'est ce que faisait collecte_pmu.py en local. L'appli appelle cet
+    endpoint jour par jour et accumule : chaque requete est courte, la
+    progression est visible, et plus rien ne depend d'un script."""
+    cle = f"res:{date_iso}:{discipline}:{monde}"
+    v = cache_get(cle, 3600)
+    if v is not None:
+        return v
+
+    jour_api = fmt_date(date_iso)
+    async with httpx.AsyncClient() as client:
+        prog = await get_json(client, f"{API}/{jour_api}")
+        if not prog or "programme" not in prog:
+            return {"date": date_iso, "courses": []}
+
+        meta, taches = [], []
+        for reu in prog["programme"].get("reunions", []):
+            if not monde and (reu.get("pays") or {}).get("code", "FRA") != "FRA":
+                continue
+            hip = reu.get("hippodrome") or {}
+            numR = reu.get("numOfficiel") or reu.get("numExterne")
+            nom_hip = hip.get("libelleLong") or "?"
+            for co in reu.get("courses", []):
+                sp = DISCIPLINES.get(co.get("specialite") or "", "autre")
+                if discipline and sp != discipline:
+                    continue
+                numC = co.get("numOrdre") or co.get("numExterne")
+                meta.append((numR, nom_hip, numC, co, sp))
+                base = f"{API}/{jour_api}/R{numR}/C{numC}"
+                taches.append(get_json(client, f"{base}/participants"))
+                taches.append(get_json(client, f"{base}/rapports-definitifs"))
+        res = await asyncio.gather(*taches, return_exceptions=True)
+
+    courses = []
+    for i, (numR, nom_hip, numC, co, sp) in enumerate(meta):
+        part, rap = res[2 * i], res[2 * i + 1]
+        if isinstance(part, Exception) or not part or not part.get("participants"):
+            continue
+        dist = co.get("distance")
+        P = [p for p in (convertir_partant(x, dist) for x in part["participants"]) if p]
+        if len(P) < 4:
+            continue
+        arr = [q["num"] for q in sorted((z for z in P if z.get("arrivee")),
+                                        key=lambda z: z["arrivee"])]
+        rp = {}
+        if not isinstance(rap, Exception) and rap:
+            for pari in rap:
+                if isinstance(pari, dict) and pari.get("typePari") == "SIMPLE_PLACE":
+                    for z in pari.get("rapports", []) or []:
+                        c0, d0 = str(z.get("combinaison", "")).strip(), z.get("dividendePourUnEuro")
+                        if c0 and d0:
+                            rp[c0] = round(d0 / 100, 2)
+        k = 3 if len(P) >= 8 else 2
+        courses.append({"date": date_iso, "hippodrome": nom_hip,
+                        "nom": co.get("libelle") or f"C{numC}",
+                        "discipline": sp, "distance": dist, "partants": P,
+                        "arrivee": arr,
+                        "rapportsPlace": [rp.get(x) for x in arr[:k]]})
+    return cache_set(cle, {"date": date_iso, "courses": courses})
+
+
+@app.get("/api/jour/{date_iso}")
+async def journee_path(date_iso: str, monde: int = Query(0)):
+    """Contrat attendu par l'appli : /api/jour/AAAA-MM-JJ"""
+    return await journee(date=date_iso, monde=monde)
 
 
 @app.get("/jour")

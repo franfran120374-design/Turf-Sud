@@ -113,7 +113,7 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 <body>
 
 <header>
-  <div class="brand"><h1>Turf Sud</h1><span class="tag">Simple placé · v16</span>
+  <div class="brand"><h1>Turf Sud</h1><span class="tag">Simple placé · v18</span>
     <a href="rapport.html" style="margin-left:auto;font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--or);text-decoration:none;border:1px solid var(--ligne);padding:4px 8px;border-radius:6px">Rapport</a></div>
   <div class="pistebar" role="group" aria-label="Hippodrome">
     <button data-piste="grenade" aria-pressed="true" onclick="setPiste('grenade')">Grenade<small>PMH · sable</small></button>
@@ -205,6 +205,24 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
 <section id="s-analyse"><div id="anaOut"><p class="empty">Chargez des partants, puis lancez l'analyse.</p></div></section>
 
 <section id="s-suivi">
+  <div class="block">
+    <h2>Constituer la base <button class="btn gh sm" id="colBtn" onclick="collecter()">Collecter</button></h2>
+    <p class="hint">Le relais télécharge les courses passées avec leurs arrivées. Aucun script, aucune commande. Comptez une à trois minutes pour trois mois de trot attelé.</p>
+    <div class="grid" style="margin-top:10px">
+      <label class="f"><span>Du</span><input type="date" id="colDebut"></label>
+      <label class="f"><span>Au</span><input type="date" id="colFin"></label>
+    </div>
+    <label class="f" style="margin-top:9px"><span>Discipline</span>
+      <select id="colDisc">
+        <option value="trot_attele">Trot attelé</option>
+        <option value="">Toutes</option>
+        <option value="trot_monte">Trot monté</option>
+        <option value="plat">Plat</option>
+        <option value="obstacle">Obstacle</option>
+      </select></label>
+    <div id="colEtat" class="hint mono" style="margin-top:10px"></div>
+  </div>
+
   <div class="block" id="evalBox">
     <h2>Le modèle bat-il le marché ?</h2>
     <p class="hint">Calcul automatique sur la base publiée. Aucune commande, aucun fichier à déplacer.</p>
@@ -219,6 +237,7 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
         </select></label>
       <label class="f"><span>Depuis le</span><input type="date" id="evDepuis" onchange="evaluer()"></label>
     </div>
+    <div class="row" style="margin-top:9px"><button class="btn sm" onclick="evaluer()">Recalculer</button></div>
     <div id="evOut" style="margin-top:12px"></div>
   </div>
 
@@ -313,6 +332,10 @@ nav button i{display:block;font-style:normal;font-size:16px;margin-bottom:1px;op
   <div class="block">
     <h2>Poids des indicateurs</h2>
     <div id="poidsAppris" class="hint mono" style="margin-bottom:10px;color:var(--menthe)"></div>
+    <div id="poidsTouche" style="display:none;margin-bottom:11px;padding:10px;border:1px solid var(--or);border-radius:8px;background:#241E10">
+      <p class="hint" style="color:var(--or);margin:0 0 8px">Poids modifiés. Le rapport affiché ne les prend pas encore en compte.</p>
+      <button class="btn pri sm" onclick="recalculer()">Recalculer le rapport</button>
+    </div>
     <div id="poids"></div>
     <div class="row end" style="margin-top:9px"><button class="btn sm" onclick="resetPoids()">Réinitialiser</button></div>
   </div>
@@ -996,6 +1019,76 @@ async function chargerBase(){
    Harville met 52 ms pour 3 000 courses, le navigateur n'a aucune
    raison de sous-traiter ça à un script.
    ================================================================== */
+/* ==================================================================
+   Collecte pilotee depuis l'appli.
+   Un navigateur ne peut pas lancer collecte_pmu.py sur le disque. Le
+   relais Render le fait a sa place : l'appli l'appelle jour par jour,
+   chaque requete est courte, la progression est visible, et les taux
+   de driver sont recalcules ici. Plus aucun script a lancer.
+   ================================================================== */
+let collecteEnCours=false;
+
+async function collecter(){
+  if(collecteEnCours)return;
+  if(!cfg.proxy){toast('Renseignez d\'abord l\'URL du relais dans Réglages');return}
+  const d1=document.getElementById('colDebut').value, d2=document.getElementById('colFin').value;
+  if(!d1||!d2||d1>d2){toast('Dates invalides');return}
+  const disc=document.getElementById('colDisc').value;
+  const E=document.getElementById('colEtat'), B=document.getElementById('colBtn');
+  collecteEnCours=true;B.disabled=true;B.textContent='…';
+
+  const jours=[];
+  for(let d=new Date(d1);d<=new Date(d2);d.setDate(d.getDate()+1))
+    jours.push(d.toISOString().slice(0,10));
+
+  const url=cfg.proxy.replace(/\/$/,'');
+  const acc=[];let ko=0;
+  for(let i=0;i<jours.length;i++){
+    E.innerHTML=`<div style="height:6px;background:var(--piste-3);border-radius:3px;margin-bottom:6px">
+      <div style="height:100%;width:${(i+1)/jours.length*100}%;background:var(--casaque);border-radius:3px"></div></div>
+      ${i+1}/${jours.length} · ${jours[i]} · <b>${acc.length}</b> courses${ko?` · ${ko} jours sans données`:''}`;
+    try{
+      const r=await fetch(`${url}/api/resultats/${jours[i]}`+(disc?`?discipline=${disc}`:''),{cache:'force-cache'});
+      if(!r.ok)throw 0;
+      const d=await r.json();
+      (d.courses||[]).forEach(c=>{if(c.arrivee&&c.arrivee.length&&c.partants.length>=4)acc.push(c)});
+    }catch(e){ko++}
+  }
+
+  if(!acc.length){E.innerHTML='<span style="color:var(--brique)">Aucune course récupérée. Le relais répond-il ?</span>';
+    collecteEnCours=false;B.disabled=false;B.textContent='Collecter';return}
+
+  // taux de reussite calcules sur ce qu'on vient de collecter
+  const D={},T={},DH={};
+  const cpt=(o,cle,ok)=>{if(!cle)return;o[cle]=o[cle]||[0,0];o[cle][0]+=ok;o[cle][1]++};
+  acc.forEach(c=>{
+    const k=c.partants.length>=8?3:2, dans=new Set(c.arrivee.slice(0,k).map(String));
+    c.partants.forEach(p=>{
+      const ok=dans.has(String(p.num))?1:0;
+      cpt(D,p.driverNom,ok);cpt(T,p.entraineurNom,ok);
+      cpt(DH,p.driverNom+' @ '+c.hippodrome,ok);
+    });
+  });
+  const taux=(o,mini)=>{const r={};for(const k in o)if(o[k][1]>=mini)r[k]=100*o[k][0]/o[k][1];return r};
+  const td=taux(D,25), te=taux(T,25), tdh=taux(DH,10);
+
+  base=acc.map(c=>({id:'c-'+c.date+'-'+c.nom,date:c.date,piste:'pmu',nom:c.nom,
+    ctx:{dist:c.distance||2400,piste:'pmu',disc:c.discipline||'trot_attele',terrain:'bon'},
+    n:c.partants.length,k:c.partants.length>=8?3:2,
+    brut:c.partants.map(p=>Object.assign({},p,{
+      driver:td[p.driverNom],entraineur:te[p.entraineurNom],
+      driverLocal:tdh[p.driverNom+' @ '+c.hippodrome]})),
+    arrivee:c.arrivee,rapports:c.rapportsPlace,lignes:[]}));
+
+  baseInfo=`${base.length} courses · ${d1} → ${d2} · ${Object.keys(td).length} drivers notés`;
+  store.set('ts_base_info',baseInfo);
+  const be=document.getElementById('baseEtat');if(be)be.textContent=baseInfo;
+  E.innerHTML=`<span style="color:var(--menthe)">${baseInfo}</span>`;
+  collecteEnCours=false;B.disabled=false;B.textContent='Recollecter';
+  document.getElementById('evOut').innerHTML='';
+  evaluer();
+}
+
 async function evaluer(){
   const O=document.getElementById('evOut');
   O.innerHTML='<p class="empty">Calcul…</p>';
@@ -1088,6 +1181,13 @@ function mesurer(courses,poids){
     roi:mises?(ret-mises)/mises*100:null,mises,
     cal:bins.map(([a,z],i)=>({de:a*100,a:Math.min(z*100,100),n:cal[i][0],
       prevu:cal[i][0]?cal[i][2]/cal[i][0]*100:null,reel:cal[i][0]?cal[i][1]/cal[i][0]*100:null}))};
+}
+
+function recalculer(){
+  const t=document.getElementById('poidsTouche');if(t)t.style.display='none';
+  const b=document.querySelectorAll('nav button')[3];
+  if(b)tab('suivi',b);
+  evaluer();
 }
 
 function jouables(){
@@ -1296,7 +1396,14 @@ function renderReglages(){
     <div class="wrow"><label for="w_${c.k}">${c.l}</label><output id="ow_${c.k}">${cfg.poids[c.k]}</output></div>
     <input type="range" id="w_${c.k}" min="0" max="35" step="1" value="${cfg.poids[c.k]}" oninput="setPoids('${c.k}',this.value)">`).join('');
 }
-function setPoids(k,v){cfg.poids[k]=+v;document.getElementById('ow_'+k).textContent=v;S('ts_cfg',cfg)}
+function setPoids(k,v){
+  cfg.poids[k]=+v;document.getElementById('ow_'+k).textContent=v;S('ts_cfg',cfg);
+  // le rapport devient faux des qu'un poids bouge : on le vide pour
+  // qu'il se recalcule au prochain passage dans Suivi
+  const o=document.getElementById('evOut');if(o)o.innerHTML='';
+  const t=document.getElementById('poidsTouche');
+  if(t)t.style.display='';
+}
 function resetPoids(){cfg.poids=Object.assign({},DEF.poids);S('ts_cfg',cfg);renderReglages();toast('Poids réinitialisés')}
 function majReglages(){
   const g=i=>+document.getElementById(i).value;
@@ -1370,6 +1477,10 @@ function setPiste(p){
 }
 document.getElementById('cDate').value=new Date().toISOString().slice(0,10);
 var _dj=document.getElementById('jourDate');if(_dj)_dj.value=new Date().toISOString().slice(0,10);
+(function(){const f=new Date(),d=new Date(Date.now()-100*864e5);
+ const cf=document.getElementById('colFin'),cd=document.getElementById('colDebut');
+ if(cf)cf.value=f.toISOString().slice(0,10);
+ if(cd)cd.value=d.toISOString().slice(0,10);})();
 setPiste(piste);renderPartants();renderReglages();renderSuivi();
 chargerPoidsAppris().then(d=>{if(d)renderReglages()});
 if(baseInfo)document.getElementById('baseEtat').textContent=baseInfo+' (cliquez pour recharger)';

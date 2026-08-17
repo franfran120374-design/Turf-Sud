@@ -1,27 +1,15 @@
-const CACHE = 'turf-sud-v16';
-const FILES = ['./', './index.html', './manifest.json'];
-
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
-});
-
+/* Service worker auto-destructeur.
+   Les versions precedentes servaient l'ancienne page depuis le cache :
+   Ctrl+Maj+R n'y changeait rien, le SW repondait avant le reseau.
+   Celui-ci se desinscrit et vide tout. Les navigateurs verifient le SW
+   a chaque navigation, il suffit donc d'ouvrir l'appli une fois. */
+self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys()
-      .then(k => Promise.all(k.filter(n => n !== CACHE).map(n => caches.delete(n))))
-      .then(() => self.clients.claim())
-  );
-});
-
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request)
-      .then(r => {
-        const copy = r.clone();
-        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
-        return r;
-      })
-      .catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
-  );
+  e.waitUntil((async () => {
+    const noms = await caches.keys();
+    await Promise.all(noms.map(n => caches.delete(n)));
+    await self.registration.unregister();
+    const cl = await self.clients.matchAll({ type: 'window' });
+    cl.forEach(c => c.navigate(c.url));
+  })());
 });
