@@ -1,5 +1,5 @@
 {
- "courses_analysees": 1900,
+ "courses_analysees": 1908,
  "drivers": {
   "J.M. BAZIRE": {
    "places": 20,
@@ -10,6 +10,11 @@
    "places": 177,
    "courses": 373,
    "taux": 47.5
+  },
+  "M. BEZIER": {
+   "places": 11,
+   "courses": 38,
+   "taux": 28.9
   },
   "A. FAVRIS": {
    "places": 5,
@@ -31,10 +36,20 @@
    "courses": 87,
    "taux": 11.5
   },
+  "L. GUINOISEAU": {
+   "places": 9,
+   "courses": 38,
+   "taux": 23.7
+  },
   "A.A. CHAVATTE": {
    "places": 20,
-   "courses": 44,
-   "taux": 45.5
+   "courses": 45,
+   "taux": 44.4
+  },
+  "A. GUARATO": {
+   "places": 14,
+   "courses": 31,
+   "taux": 45.2
   },
   "W. BIGEON": {
    "places": 16,
@@ -47,29 +62,54 @@
    "taux": 14.3
   },
   "A. ABRIVARD": {
-   "places": 98,
-   "courses": 273,
-   "taux": 35.9
+   "places": 99,
+   "courses": 274,
+   "taux": 36.1
   },
   "J.PH. MONCLIN": {
-   "places": 16,
-   "courses": 40,
-   "taux": 40.0
+   "places": 17,
+   "courses": 41,
+   "taux": 41.5
+  },
+  "P. PELLEROT": {
+   "places": 7,
+   "courses": 34,
+   "taux": 20.6
   },
   "ANTHONY DOLLION": {
    "places": 20,
    "courses": 52,
    "taux": 38.5
   },
+  "A. THOMAS": {
+   "places": 11,
+   "courses": 30,
+   "taux": 36.7
+  },
   "P. BELLOCHE": {
    "places": 18,
    "courses": 54,
    "taux": 33.3
   },
+  "G. JOUVE": {
+   "places": 4,
+   "courses": 32,
+   "taux": 12.5
+  },
+  "T. BEAUVAIS": {
+   "places": 1,
+   "courses": 38,
+   "taux": 2.6
+  },
   "D. THOMAIN": {
    "places": 117,
    "courses": 325,
    "taux": 36.0
+  },
+  "S. ROGER": {
+   "places": 4,
+   "courses": 33,
+   "taux": 12.1
   },
   "M. LEGROS": {
    "places": 20,
@@ -78,8 +118,8 @@
   },
   "CL. THOMAIN": {
    "places": 8,
-   "courses": 44,
-   "taux": 18.2
+   "courses": 45,
+   "taux": 17.8
   },
   "S. ERNAULT": {
    "places": 37,
@@ -91,15 +131,25 @@
    "courses": 153,
    "taux": 26.1
   },
+  "A. LHERETE": {
+   "places": 9,
+   "courses": 30,
+   "taux": 30.0
+  },
   "B. ROCHARD": {
    "places": 204,
    "courses": 462,
    "taux": 44.2
   },
+  "P.EDOUARD MARY": {
+   "places": 14,
+   "courses": 30,
+   "taux": 46.7
+  },
   "A. REBECHE": {
-   "places": 37,
-   "courses": 137,
-   "taux": 27.0
+   "places": 38,
+   "courses": 143,
+   "taux": 26.6
   },
   "A. WIELS": {
    "places": 55,
@@ -111,10 +161,15 @@
    "courses": 51,
    "taux": 25.5
   },
+  "M. MAIGNAN": {
+   "places": 8,
+   "courses": 36,
+   "taux": 22.2
+  },
   "P. HOUEL": {
    "places": 11,
-   "courses": 42,
-   "taux": 26.2
+   "courses": 43,
+   "taux": 25.6
   },
   "D. BEKAERT": {
    "places": 109,
@@ -128,8 +183,8 @@
   },
   "TH. BRIAND": {
    "places": 136,
-   "courses": 310,
-   "taux": 43.9
+   "courses": 311,
+   "taux": 43.7
   },
   "N. ENSCH": {
    "places": 11,
@@ -161,10 +216,20 @@
    "courses": 79,
    "taux": 40.5
   },
+  "K. BUSNEL": {
+   "places": 4,
+   "courses": 37,
+   "taux": 10.8
+  },
   "E. BRIAND": {
-   "places": 16,
-   "courses": 56,
-   "taux": 28.6
+   "places": 17,
+   "courses": 57,
+   "taux": 29.8
+  },
+  "K. THONNERIEUX": {
+   "places": 7,
+   "courses": 33,
+   "taux": 21.2
   },
   "J.CH. FERON": {
    "places": 27,
@@ -221,6 +286,11 @@
    "courses": 112,
    "taux": 19.6
   },
+  "P. REPICHET": {
+   "places": 8,
+   "courses": 39,
+   "taux": 20.5
+  },
   "F.J. PELTIER": {
    "places": 7,
    "courses": 59,
@@ -233,8 +303,8 @@
   },
   "B. CHAUVE-LAFFAY": {
    "places": 21,
-   "courses": 81,
-   "taux": 25.9
+   "courses": 82,
+   "taux": 25.6
   },
   "ALEXIS LERENARD": {
    "places": 24,
@@ -248,8 +318,13 @@
   },
   "Q. CHAUVE-LAFFAY": {
    "places": 33,
-   "courses": 140,
-   "taux": 23.6
+   "courses": 141,
+   "taux": 23.4
+  },
+  "R. HUE": {
+   "places": 10,
+   "courses": 33,
+   "taux": 30.3
   },
   "G. MARIN": {
    "places": 8,
@@ -261,10 +336,20 @@
    "courses": 44,
    "taux": 13.6
   },
+  "F. TABESSE": {
+   "places": 2,
+   "courses": 32,
+   "taux": 6.2
+  },
   "M. HERRAULT": {
    "places": 13,
    "courses": 46,
    "taux": 28.3
+  },
+  "P.A. DELACOUR": {
+   "places": 7,
+   "courses": 37,
+   "taux": 18.9
   },
   "G. D'HAENENS": {
    "places": 18,
@@ -297,9 +382,9 @@
    "taux": 11.8
   },
   "E. DE JESUS": {
-   "places": 28,
-   "courses": 135,
-   "taux": 20.7
+   "places": 30,
+   "courses": 142,
+   "taux": 21.1
   },
   "Y. LEBOURGEOIS": {
    "places": 113,
@@ -313,8 +398,8 @@
   },
   "A. BARRIER": {
    "places": 76,
-   "courses": 210,
-   "taux": 36.2
+   "courses": 211,
+   "taux": 36.0
   },
   "F. NIVARD": {
    "places": 77,
@@ -326,20 +411,40 @@
    "courses": 271,
    "taux": 26.6
   },
+  "ARNAUD DESMOTTES": {
+   "places": 7,
+   "courses": 39,
+   "taux": 17.9
+  },
   "F. GUERINEAU": {
    "places": 11,
    "courses": 56,
    "taux": 19.6
+  },
+  "B. ROBIN": {
+   "places": 8,
+   "courses": 38,
+   "taux": 21.1
   },
   "CL. DUVALDESTIN": {
    "places": 28,
    "courses": 47,
    "taux": 59.6
   },
+  "F. MARTY": {
+   "places": 13,
+   "courses": 37,
+   "taux": 35.1
+  },
   "P.PH. PLOQUIN": {
    "places": 97,
    "courses": 322,
    "taux": 30.1
+  },
+  "E. ALLARD": {
+   "places": 8,
+   "courses": 34,
+   "taux": 23.5
   },
   "F. BLANDIN": {
    "places": 16,
@@ -373,8 +478,8 @@
   },
   "L. LAMAZIERE": {
    "places": 21,
-   "courses": 99,
-   "taux": 21.2
+   "courses": 100,
+   "taux": 21.0
   },
   "ALEXANDRE BODIN": {
    "places": 20,
@@ -386,10 +491,25 @@
    "courses": 59,
    "taux": 20.3
   },
+  "LAURENT GOUT": {
+   "places": 1,
+   "courses": 32,
+   "taux": 3.1
+  },
+  "J.CH. PITON": {
+   "places": 4,
+   "courses": 32,
+   "taux": 12.5
+  },
   "M. GOETZ": {
    "places": 26,
    "courses": 71,
    "taux": 36.6
+  },
+  "D. BROHIER": {
+   "places": 7,
+   "courses": 37,
+   "taux": 18.9
   },
   "PH. MASSCHAELE": {
    "places": 7,
@@ -400,6 +520,11 @@
    "places": 8,
    "courses": 45,
    "taux": 17.8
+  },
+  "JULIEN RAFFESTIN": {
+   "places": 12,
+   "courses": 38,
+   "taux": 31.6
   },
   "TH. DROMIGNY": {
    "places": 14,
@@ -443,23 +568,23 @@
   },
   "B. LE BELLER": {
    "places": 18,
-   "courses": 52,
-   "taux": 34.6
+   "courses": 53,
+   "taux": 34.0
   },
   "J. TRAVERS": {
-   "places": 12,
-   "courses": 56,
-   "taux": 21.4
+   "places": 13,
+   "courses": 61,
+   "taux": 21.3
   },
   "F. LAGADEUC": {
    "places": 71,
-   "courses": 260,
-   "taux": 27.3
+   "courses": 267,
+   "taux": 26.6
   },
   "R. CONGARD": {
    "places": 8,
-   "courses": 41,
-   "taux": 19.5
+   "courses": 44,
+   "taux": 18.2
   },
   "N. PACHA": {
    "places": 6,
@@ -475,6 +600,26 @@
    "places": 13,
    "courses": 53,
    "taux": 24.5
+  },
+  "A. DUPERCHE": {
+   "places": 12,
+   "courses": 38,
+   "taux": 31.6
+  },
+  "TH. BUSSET": {
+   "places": 5,
+   "courses": 33,
+   "taux": 15.2
+  },
+  "CH.J. BIGEON": {
+   "places": 3,
+   "courses": 33,
+   "taux": 9.1
+  },
+  "F. BOUDET": {
+   "places": 10,
+   "courses": 38,
+   "taux": 26.3
   },
   "S. BAUDE": {
    "places": 15,
@@ -507,24 +652,34 @@
    "taux": 22.5
   },
   "N. PERRON": {
-   "places": 17,
-   "courses": 58,
-   "taux": 29.3
+   "places": 19,
+   "courses": 62,
+   "taux": 30.6
   },
   "CEDRIC TERRY": {
-   "places": 33,
-   "courses": 157,
-   "taux": 21.0
+   "places": 35,
+   "courses": 163,
+   "taux": 21.5
   },
   "Mlle CL. LELIEVRE": {
    "places": 27,
    "courses": 58,
    "taux": 46.6
   },
+  "J. CHAVATTE": {
+   "places": 3,
+   "courses": 36,
+   "taux": 8.3
+  },
   "D. BROUWER": {
    "places": 23,
-   "courses": 47,
-   "taux": 48.9
+   "courses": 48,
+   "taux": 47.9
+  },
+  "N. CINIER": {
+   "places": 9,
+   "courses": 37,
+   "taux": 24.3
   },
   "GUILLAUME LEMOINE": {
    "places": 5,
@@ -536,10 +691,20 @@
    "courses": 74,
    "taux": 27.0
   },
+  "F. GIARD": {
+   "places": 9,
+   "courses": 35,
+   "taux": 25.7
+  },
   "M. IZZO": {
    "places": 10,
    "courses": 42,
    "taux": 23.8
+  },
+  "M.J. BARCELO BISQUERRA": {
+   "places": 9,
+   "courses": 36,
+   "taux": 25.0
   },
   "K. DEPUYDT": {
    "places": 12,
@@ -556,10 +721,20 @@
    "courses": 71,
    "taux": 32.4
   },
+  "N. MARTINEAU": {
+   "places": 3,
+   "courses": 31,
+   "taux": 9.7
+  },
   "CH. DREUX": {
    "places": 13,
    "courses": 43,
    "taux": 30.2
+  },
+  "R. VILAULT": {
+   "places": 11,
+   "courses": 37,
+   "taux": 29.7
   },
   "O. RAFFIN": {
    "places": 12,
@@ -586,10 +761,25 @@
    "courses": 42,
    "taux": 21.4
   },
+  "L.J. LEGROS": {
+   "places": 9,
+   "courses": 30,
+   "taux": 30.0
+  },
+  "W. PLAIRE": {
+   "places": 8,
+   "courses": 30,
+   "taux": 26.7
+  },
+  "G.A. POU POU": {
+   "places": 5,
+   "courses": 30,
+   "taux": 16.7
+  },
   "S. STEFANO": {
    "places": 12,
-   "courses": 75,
-   "taux": 16.0
+   "courses": 76,
+   "taux": 15.8
   },
   "M. CRIADO": {
    "places": 14,
@@ -601,6 +791,31 @@
    "courses": 48,
    "taux": 41.7
   },
+  "M. GERGOUIL": {
+   "places": 11,
+   "courses": 35,
+   "taux": 31.4
+  },
+  "P.E. COLLARD": {
+   "places": 2,
+   "courses": 30,
+   "taux": 6.7
+  },
+  "B. HARDY": {
+   "places": 7,
+   "courses": 39,
+   "taux": 17.9
+  },
+  "G. JUNOD": {
+   "places": 13,
+   "courses": 34,
+   "taux": 38.2
+  },
+  "D. DESBORDES": {
+   "places": 5,
+   "courses": 30,
+   "taux": 16.7
+  },
   "R. DERIEUX": {
    "places": 42,
    "courses": 77,
@@ -610,6 +825,11 @@
    "places": 21,
    "courses": 96,
    "taux": 21.9
+  },
+  "J. CUOQ": {
+   "places": 3,
+   "courses": 38,
+   "taux": 7.9
   },
   "S. LALOUM": {
    "places": 7,
@@ -658,10 +878,20 @@
    "courses": 127,
    "taux": 33.9
   },
+  "M. MONACO": {
+   "places": 4,
+   "courses": 36,
+   "taux": 11.1
+  },
   "K. LEBLANC": {
    "places": 39,
    "courses": 142,
    "taux": 27.5
+  },
+  "S. POILANE": {
+   "places": 6,
+   "courses": 35,
+   "taux": 17.1
   },
   "O. RAFFIN": {
    "places": 13,
@@ -683,29 +913,34 @@
    "courses": 82,
    "taux": 34.1
   },
+  "F. JOSEPH": {
+   "places": 9,
+   "courses": 37,
+   "taux": 24.3
+  },
   "Y. HENRY": {
    "places": 14,
    "courses": 44,
    "taux": 31.8
   },
   "St. PROVOOST": {
-   "places": 17,
-   "courses": 141,
-   "taux": 12.1
+   "places": 18,
+   "courses": 146,
+   "taux": 12.3
   },
   "A. CHAVATTE": {
    "places": 59,
-   "courses": 141,
-   "taux": 41.8
+   "courses": 142,
+   "taux": 41.5
   },
   "S. GUARATO": {
    "places": 70,
-   "courses": 199,
-   "taux": 35.2
+   "courses": 200,
+   "taux": 35.0
   },
   "S. ROUSSELLE": {
-   "places": 21,
-   "courses": 42,
+   "places": 22,
+   "courses": 44,
    "taux": 50.0
   },
   "Vitale CIOTOLA": {
@@ -713,10 +948,15 @@
    "courses": 50,
    "taux": 24.0
   },
+  "L. CHARBONNEL": {
+   "places": 5,
+   "courses": 30,
+   "taux": 16.7
+  },
   "S. HARDY": {
    "places": 25,
-   "courses": 183,
-   "taux": 13.7
+   "courses": 184,
+   "taux": 13.6
   },
   "Y. DREUX": {
    "places": 18,
@@ -725,8 +965,13 @@
   },
   "E.G. BLOT": {
    "places": 8,
-   "courses": 57,
-   "taux": 14.0
+   "courses": 59,
+   "taux": 13.6
+  },
+  "S. LEBLOND": {
+   "places": 5,
+   "courses": 38,
+   "taux": 13.2
   },
   "W. BIGEON": {
    "places": 26,
@@ -768,6 +1013,11 @@
    "courses": 46,
    "taux": 30.4
   },
+  "C. MEGISSIER": {
+   "places": 11,
+   "courses": 31,
+   "taux": 35.5
+  },
   "P. BELLOCHE": {
    "places": 24,
    "courses": 70,
@@ -775,13 +1025,23 @@
   },
   "S.G. DUPONT": {
    "places": 23,
-   "courses": 45,
-   "taux": 51.1
+   "courses": 46,
+   "taux": 50.0
+  },
+  "A. HUBERT": {
+   "places": 7,
+   "courses": 31,
+   "taux": 22.6
   },
   "G. DELACOUR": {
    "places": 13,
    "courses": 54,
    "taux": 24.1
+  },
+  "M. HELBERT": {
+   "places": 10,
+   "courses": 30,
+   "taux": 33.3
   },
   "Guillaume JOUVE": {
    "places": 9,
@@ -789,24 +1049,24 @@
    "taux": 16.4
   },
   "J.PH. MONCLIN": {
-   "places": 40,
-   "courses": 83,
-   "taux": 48.2
+   "places": 41,
+   "courses": 84,
+   "taux": 48.8
   },
   "CH. CUILLER": {
-   "places": 23,
-   "courses": 79,
-   "taux": 29.1
+   "places": 24,
+   "courses": 82,
+   "taux": 29.3
   },
   "F. TERRY": {
-   "places": 77,
-   "courses": 304,
-   "taux": 25.3
+   "places": 81,
+   "courses": 311,
+   "taux": 26.0
   },
   "CH. BIGEON": {
    "places": 14,
-   "courses": 62,
-   "taux": 22.6
+   "courses": 63,
+   "taux": 22.2
   },
   "Antonin ANDRE": {
    "places": 14,
@@ -818,10 +1078,20 @@
    "courses": 154,
    "taux": 33.8
   },
+  "R. JAJOLET": {
+   "places": 7,
+   "courses": 32,
+   "taux": 21.9
+  },
+  "JEROME DAVID": {
+   "places": 2,
+   "courses": 37,
+   "taux": 5.4
+  },
   "CL. THOMAIN": {
    "places": 65,
-   "courses": 185,
-   "taux": 35.1
+   "courses": 186,
+   "taux": 34.9
   },
   "S. ROGER": {
    "places": 36,
@@ -843,6 +1113,11 @@
    "courses": 57,
    "taux": 36.8
   },
+  "CH. CLIN": {
+   "places": 8,
+   "courses": 38,
+   "taux": 21.1
+  },
   "S. ERNAULT": {
    "places": 24,
    "courses": 64,
@@ -858,10 +1133,60 @@
    "courses": 53,
    "taux": 50.9
   },
+  "M. LEBREC": {
+   "places": 10,
+   "courses": 35,
+   "taux": 28.6
+  },
+  "J.W. HALLAIS": {
+   "places": 6,
+   "courses": 30,
+   "taux": 20.0
+  },
+  "Antoine LHERETE": {
+   "places": 10,
+   "courses": 37,
+   "taux": 27.0
+  },
+  "B. CARPENTIER": {
+   "places": 14,
+   "courses": 34,
+   "taux": 41.2
+  },
+  "P.Edouard MARY": {
+   "places": 19,
+   "courses": 36,
+   "taux": 52.8
+  },
   "K. BUSNEL": {
    "places": 19,
    "courses": 100,
    "taux": 19.0
+  },
+  "K. CHAMPENOIS": {
+   "places": 9,
+   "courses": 31,
+   "taux": 29.0
+  },
+  "V. RAIMBAULT": {
+   "places": 6,
+   "courses": 36,
+   "taux": 16.7
+  },
+  "J.F. POPOT": {
+   "places": 5,
+   "courses": 31,
+   "taux": 16.1
+  },
+  "Ph. BOUTIN": {
+   "places": 12,
+   "courses": 37,
+   "taux": 32.4
+  },
+  "J.L. BIGEON": {
+   "places": 15,
+   "courses": 39,
+   "taux": 38.5
   },
   "N. LEMETAYER": {
    "places": 15,
@@ -872,6 +1197,11 @@
    "places": 18,
    "courses": 96,
    "taux": 18.8
+  },
+  "R. CORBIN": {
+   "places": 12,
+   "courses": 32,
+   "taux": 37.5
   },
   "A.PH. GRIMAULT": {
    "places": 30,
@@ -888,6 +1218,11 @@
    "courses": 86,
    "taux": 27.9
   },
+  "A. PACARY": {
+   "places": 12,
+   "courses": 36,
+   "taux": 33.3
+  },
   "Ch. DREUX": {
    "places": 17,
    "courses": 71,
@@ -897,6 +1232,11 @@
    "places": 38,
    "courses": 179,
    "taux": 21.2
+  },
+  "F.J. PELTIER": {
+   "places": 7,
+   "courses": 31,
+   "taux": 22.6
   },
   "L. GOUT": {
    "places": 3,
@@ -908,20 +1248,30 @@
    "courses": 62,
    "taux": 14.5
   },
+  "L. FRESNEAU": {
+   "places": 5,
+   "courses": 37,
+   "taux": 13.5
+  },
+  "A. TOMASELLI": {
+   "places": 3,
+   "courses": 35,
+   "taux": 8.6
+  },
   "J.M. ROUBAUD": {
    "places": 44,
    "courses": 165,
    "taux": 26.7
   },
   "TH. BONNARDEL": {
-   "places": 47,
-   "courses": 205,
-   "taux": 22.9
+   "places": 48,
+   "courses": 206,
+   "taux": 23.3
   },
   "G. TOURON": {
    "places": 11,
-   "courses": 86,
-   "taux": 12.8
+   "courses": 87,
+   "taux": 12.6
   },
   "R. MOURICE": {
    "places": 33,
@@ -948,6 +1298,16 @@
    "courses": 58,
    "taux": 48.3
   },
+  "Y. LACOMBE": {
+   "places": 12,
+   "courses": 35,
+   "taux": 34.3
+  },
+  "Julien CHAUVIN": {
+   "places": 7,
+   "courses": 37,
+   "taux": 18.9
+  },
   "K. THONNERIEUX": {
    "places": 11,
    "courses": 50,
@@ -963,10 +1323,15 @@
    "courses": 64,
    "taux": 39.1
   },
+  "R. LE VEXIER": {
+   "places": 8,
+   "courses": 34,
+   "taux": 23.5
+  },
   "J. CUOQ": {
    "places": 9,
-   "courses": 51,
-   "taux": 17.6
+   "courses": 52,
+   "taux": 17.3
   },
   "A. BONNEFOY": {
    "places": 12,
@@ -977,6 +1342,11 @@
    "places": 35,
    "courses": 89,
    "taux": 39.3
+  },
+  "A.P. GIRAUD": {
+   "places": 7,
+   "courses": 35,
+   "taux": 20.0
   },
   "G. FOURNIGAULT": {
    "places": 13,
@@ -998,6 +1368,11 @@
    "courses": 141,
    "taux": 29.8
   },
+  "J. HUGUET": {
+   "places": 9,
+   "courses": 38,
+   "taux": 23.7
+  },
   "Sté. Ent. Grégory THOREL": {
    "places": 14,
    "courses": 51,
@@ -1005,8 +1380,8 @@
   },
   "Sté. Ent. R. et D. HUE": {
    "places": 18,
-   "courses": 55,
-   "taux": 32.7
+   "courses": 56,
+   "taux": 32.1
   },
   "V. SEGUIN": {
    "places": 13,
@@ -1020,13 +1395,13 @@
   },
   "E. VARIN": {
    "places": 19,
-   "courses": 171,
-   "taux": 11.1
+   "courses": 172,
+   "taux": 11.0
   },
   "J.M. GUILLOTTE": {
    "places": 3,
-   "courses": 42,
-   "taux": 7.1
+   "courses": 44,
+   "taux": 6.8
   },
   "F. TABESSE": {
    "places": 4,
@@ -1040,13 +1415,18 @@
   },
   "G. HOUEL": {
    "places": 13,
-   "courses": 79,
-   "taux": 16.5
+   "courses": 81,
+   "taux": 16.0
   },
   "A. DE JESUS": {
    "places": 18,
-   "courses": 85,
-   "taux": 21.2
+   "courses": 86,
+   "taux": 20.9
+  },
+  "TH. LAMARE": {
+   "places": 13,
+   "courses": 30,
+   "taux": 43.3
   },
   "L. LERENARD": {
    "places": 25,
@@ -1143,6 +1523,11 @@
    "courses": 73,
    "taux": 30.1
   },
+  "Sté. Ent. Emmanuel ALLARD": {
+   "places": 8,
+   "courses": 35,
+   "taux": 22.9
+  },
   "F. BLANDIN": {
    "places": 24,
    "courses": 81,
@@ -1153,10 +1538,20 @@
    "courses": 76,
    "taux": 10.5
   },
+  "P. PLOQUIN": {
+   "places": 11,
+   "courses": 37,
+   "taux": 29.7
+  },
   "V. MARTENS": {
    "places": 24,
    "courses": 57,
    "taux": 42.1
+  },
+  "R.CH. LARUE": {
+   "places": 6,
+   "courses": 34,
+   "taux": 17.6
   },
   "D. LOCQUENEUX": {
    "places": 15,
@@ -1168,10 +1563,40 @@
    "courses": 52,
    "taux": 28.8
   },
+  "Joris FILOGRASSO": {
+   "places": 2,
+   "courses": 31,
+   "taux": 6.5
+  },
   "G. CURENS": {
    "places": 17,
    "courses": 55,
    "taux": 30.9
+  },
+  "L. GARCIA": {
+   "places": 4,
+   "courses": 34,
+   "taux": 11.8
+  },
+  "M. BUSSET": {
+   "places": 7,
+   "courses": 30,
+   "taux": 23.3
+  },
+  "G. GILLOT": {
+   "places": 10,
+   "courses": 31,
+   "taux": 32.3
+  },
+  "P. VERCRUYSSE": {
+   "places": 12,
+   "courses": 32,
+   "taux": 37.5
+  },
+  "B. THOMAS": {
+   "places": 4,
+   "courses": 33,
+   "taux": 12.1
   },
   "Sté. Ent. Anthony TINTILLIER": {
    "places": 10,
@@ -1180,18 +1605,28 @@
   },
   "H. CHAUVE-LAFFAY": {
    "places": 17,
-   "courses": 68,
-   "taux": 25.0
+   "courses": 69,
+   "taux": 24.6
   },
   "CH. MOTTIER": {
    "places": 31,
-   "courses": 82,
-   "taux": 37.8
+   "courses": 83,
+   "taux": 37.3
+  },
+  "Y. LAVIGNE": {
+   "places": 1,
+   "courses": 30,
+   "taux": 3.3
   },
   "PH. DAUGEARD": {
    "places": 26,
    "courses": 121,
    "taux": 21.5
+  },
+  "P. GODEY": {
+   "places": 1,
+   "courses": 32,
+   "taux": 3.1
   },
   "B. GOGLIN": {
    "places": 11,
@@ -1199,9 +1634,9 @@
    "taux": 25.6
   },
   "TH. LEVESQUE": {
-   "places": 21,
-   "courses": 56,
-   "taux": 37.5
+   "places": 22,
+   "courses": 58,
+   "taux": 37.9
   },
   "J.F. SENET": {
    "places": 16,
@@ -1209,9 +1644,9 @@
    "taux": 22.9
   },
   "ST. MEUNIER": {
-   "places": 21,
-   "courses": 61,
-   "taux": 34.4
+   "places": 22,
+   "courses": 65,
+   "taux": 33.8
   },
   "L.M. DAVID": {
    "places": 24,
@@ -1223,6 +1658,16 @@
    "courses": 78,
    "taux": 21.8
   },
+  "D. BROHIER": {
+   "places": 8,
+   "courses": 38,
+   "taux": 21.1
+  },
+  "M. DUPUIS": {
+   "places": 4,
+   "courses": 34,
+   "taux": 11.8
+  },
   "Julien RAFFESTIN": {
    "places": 16,
    "courses": 46,
@@ -1232,6 +1677,11 @@
    "places": 15,
    "courses": 50,
    "taux": 30.0
+  },
+  "A. GARANDEAU": {
+   "places": 13,
+   "courses": 32,
+   "taux": 40.6
   },
   "Mme G. MASSCHAELE": {
    "places": 13,
@@ -1247,6 +1697,16 @@
    "places": 11,
    "courses": 48,
    "taux": 22.9
+  },
+  "C. GODARD": {
+   "places": 13,
+   "courses": 38,
+   "taux": 34.2
+  },
+  "L. ROELENS": {
+   "places": 6,
+   "courses": 34,
+   "taux": 17.6
   },
   "P.L. DESAUNETTE": {
    "places": 42,
@@ -1265,23 +1725,53 @@
   },
   "B. LE BELLER": {
    "places": 20,
-   "courses": 62,
-   "taux": 32.3
+   "courses": 63,
+   "taux": 31.7
   },
   "M. VARIN": {
    "places": 15,
    "courses": 103,
    "taux": 14.6
   },
+  "F. GENCE": {
+   "places": 7,
+   "courses": 35,
+   "taux": 20.0
+  },
   "A. DUPERCHE": {
-   "places": 12,
-   "courses": 41,
-   "taux": 29.3
+   "places": 13,
+   "courses": 42,
+   "taux": 31.0
   },
   "T. PARTAIX": {
    "places": 7,
    "courses": 45,
    "taux": 15.6
+  },
+  "R. KUIPER": {
+   "places": 6,
+   "courses": 33,
+   "taux": 18.2
+  },
+  "TH. BUSSET": {
+   "places": 7,
+   "courses": 37,
+   "taux": 18.9
+  },
+  "G. VERVA": {
+   "places": 7,
+   "courses": 31,
+   "taux": 22.6
+  },
+  "E.M. FOURNIER": {
+   "places": 15,
+   "courses": 32,
+   "taux": 46.9
+  },
+  "CH.J. BIGEON": {
+   "places": 3,
+   "courses": 32,
+   "taux": 9.4
   },
   "N. BRIDAULT": {
    "places": 28,
@@ -1303,6 +1793,11 @@
    "courses": 54,
    "taux": 16.7
   },
+  "J.M. LEGROS": {
+   "places": 9,
+   "courses": 33,
+   "taux": 27.3
+  },
   "D. DELAROCHE": {
    "places": 5,
    "courses": 45,
@@ -1317,6 +1812,11 @@
    "places": 18,
    "courses": 84,
    "taux": 21.4
+  },
+  "J. LE MER": {
+   "places": 13,
+   "courses": 39,
+   "taux": 33.3
   },
   "R. DERIEUX": {
    "places": 35,
@@ -1343,10 +1843,25 @@
    "courses": 63,
    "taux": 22.2
   },
+  "Mme Emeline DESMIGNEUX": {
+   "places": 5,
+   "courses": 30,
+   "taux": 16.7
+  },
+  "Dariusz CZERWINSKI": {
+   "places": 9,
+   "courses": 34,
+   "taux": 26.5
+  },
   "J. CORBANIE": {
    "places": 19,
    "courses": 69,
    "taux": 27.5
+  },
+  "N. MORTAGNE": {
+   "places": 9,
+   "courses": 31,
+   "taux": 29.0
   },
   "D. BONNE": {
    "places": 10,
@@ -1357,6 +1872,11 @@
    "places": 22,
    "courses": 53,
    "taux": 41.5
+  },
+  "J. UROZ": {
+   "places": 10,
+   "courses": 38,
+   "taux": 26.3
   },
   "J.F. VAN DOOYEWEERD": {
    "places": 18,
@@ -1378,10 +1898,45 @@
    "courses": 53,
    "taux": 24.5
   },
+  "Pavel TAMSIN": {
+   "places": 12,
+   "courses": 38,
+   "taux": 31.6
+  },
+  "B. CURY": {
+   "places": 6,
+   "courses": 34,
+   "taux": 17.6
+  },
+  "MARTIAL GAUVIN": {
+   "places": 4,
+   "courses": 33,
+   "taux": 12.1
+  },
+  "D. BEKAERT": {
+   "places": 9,
+   "courses": 30,
+   "taux": 30.0
+  },
+  "N. MARTINEAU": {
+   "places": 6,
+   "courses": 31,
+   "taux": 19.4
+  },
   "Théo RADOUX": {
    "places": 10,
    "courses": 42,
    "taux": 23.8
+  },
+  "F. DUCROCQ": {
+   "places": 6,
+   "courses": 31,
+   "taux": 19.4
+  },
+  "A. MARION": {
+   "places": 11,
+   "courses": 35,
+   "taux": 31.4
   },
   "B. GOETZ": {
    "places": 26,
@@ -1393,10 +1948,30 @@
    "courses": 49,
    "taux": 30.6
   },
+  "LOIC GROUSSARD": {
+   "places": 2,
+   "courses": 35,
+   "taux": 5.7
+  },
+  "G. RAFFESTIN": {
+   "places": 7,
+   "courses": 38,
+   "taux": 18.4
+  },
   "J. DUBOIS": {
-   "places": 25,
-   "courses": 65,
-   "taux": 38.5
+   "places": 26,
+   "courses": 66,
+   "taux": 39.4
+  },
+  "Sté. Ent. Bernard GRASSET": {
+   "places": 6,
+   "courses": 30,
+   "taux": 20.0
+  },
+  "J. GUELPA": {
+   "places": 2,
+   "courses": 33,
+   "taux": 6.1
   },
   "C. GAZENGEL": {
    "places": 2,
@@ -1412,6 +1987,11 @@
    "places": 16,
    "courses": 45,
    "taux": 35.6
+  },
+  "D. DESBORDES": {
+   "places": 5,
+   "courses": 32,
+   "taux": 15.6
   }
  },
  "hippodromes": {
@@ -1511,9 +2091,9 @@
    "taux": 20.7
   },
   "HIPPODROME D'ARGENTAN": {
-   "places": 56,
-   "courses": 240,
-   "taux": 23.3
+   "places": 77,
+   "courses": 328,
+   "taux": 23.5
   },
   "HIPPODROME D'ANGERS EVENTARD": {
    "places": 20,
@@ -1661,9 +2241,9 @@
    "taux": 23.9
   },
   "HIPPODROME DE DIVONNE LES BAINS": {
-   "places": 26,
-   "courses": 118,
-   "taux": 22.0
+   "places": 29,
+   "courses": 130,
+   "taux": 22.3
   }
  },
  "drivers_par_hippodrome": {
@@ -2116,6 +2696,16 @@
    "places": 5,
    "courses": 15,
    "taux": 33.3
+  },
+  "E. DE JESUS @ HIPPODROME D'ARGENTAN": {
+   "places": 4,
+   "courses": 15,
+   "taux": 26.7
+  },
+  "CEDRIC TERRY @ HIPPODROME D'ARGENTAN": {
+   "places": 2,
+   "courses": 15,
+   "taux": 13.3
   },
   "J.M. BAZIRE @ HIPPODROME DE PARIS-VINCENNES": {
    "places": 7,
