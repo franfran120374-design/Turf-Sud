@@ -143,9 +143,10 @@ def convertir_partant(x: Dict, dist_base: Optional[int] = None) -> Optional[Dict
         # recul reel = distance du cheval moins distance de base
         "recul": ((x.get("handicapDistance") or 0) - dist_base)
                  if (dist_base and x.get("handicapDistance")) else None,
-        # reduction kilometrique en millisecondes -> secondes au km
-        "vitesse": (x.get("reductionKilometrique") / 1000.0)
-                   if x.get("reductionKilometrique") else x.get("handicapValeur"),
+        # reductionKilometrique est le chrono de CETTE course : disponible
+        # seulement une fois l'arrivee connue, donc inutilisable pour
+        # predire. Il est exclu volontairement des entrees du modele.
+        "vitesse": x.get("handicapValeur"),
         # regularite de carriere : ne vient pas de la musique, donc moins
         # susceptible d'etre deja entierement dans les cotes
         "tauxPlace": (round(100 * (x.get("nombrePlaces") or 0) / nc, 1) if nc else None),

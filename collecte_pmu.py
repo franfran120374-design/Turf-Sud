@@ -210,9 +210,14 @@ def collecte_course(meta):
             # recul reel = distance du cheval moins distance de base
             "recul": ((x.get("handicapDistance") or 0) - dist_base)
                      if (dist_base and x.get("handicapDistance")) else None,
-            # reduction kilometrique en millisecondes -> secondes au km
-            "rk": (x.get("reductionKilometrique") / 1000.0)
-                  if x.get("reductionKilometrique") else None,
+            # ATTENTION : reductionKilometrique est le chrono realise DANS
+            # cette course (verifie : temps/distance le reproduit a l'unite
+            # pres, et le champ est vide sur toute course a venir). L'utiliser
+            # comme indicateur revient a predire une course avec son propre
+            # resultat. On le conserve pour analyse, JAMAIS comme entree du
+            # modele : la cle "vitesse" doit rester vide.
+            "rk_apres_course": (x.get("reductionKilometrique") / 1000.0)
+                               if x.get("reductionKilometrique") else None,
             # taux de place en carriere : une regularite qui ne vient pas
             # de la musique, donc moins susceptible d'etre deja dans les cotes
             "tauxPlace": round(100 * (x.get("nombrePlaces") or 0) / nc, 1) if nc else None,
@@ -390,7 +395,7 @@ def cmd_exporter(a):
                 "entraineur": ent.get("taux"), "gains": p["gains"],
                 "age": p["age"], "corde": p["corde"], "poids": p["poids"],
                 "deferre": p["deferre"], "recul": p.get("recul"),
-                "vitesse": p.get("rk") or p["valeur"],
+                "vitesse": p["valeur"],      # jamais rk_apres_course : fuite
                 "tauxPlace": p.get("tauxPlace"),
                 "driverChange": 1 if p.get("driverChange") else 0,
                 "oeilleres": p.get("oeilleres"),
