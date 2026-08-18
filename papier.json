@@ -1,0 +1,56 @@
+{
+ "mise": 3,
+ "picks": [
+  {
+   "date": "2026-08-18",
+   "r": 1,
+   "c": 1,
+   "hippodrome": "HIPPODROME DE DEAUVILLE",
+   "heure": "12:18",
+   "discipline": "plat",
+   "num": "5",
+   "nom": "SILENT WARNING",
+   "proba_modele": 0.8701,
+   "rapport_estime": 1.01,
+   "n_partants": 8,
+   "seuil_utilise": 0.85,
+   "resultat": null,
+   "rapport_reel": null,
+   "gain_net": null
+  },
+  {
+   "date": "2026-08-18",
+   "r": 2,
+   "c": 7,
+   "hippodrome": "HIPPODROME DE DIVONNE LES BAINS",
+   "heure": "13:10",
+   "discipline": "trot_attele",
+   "num": "4",
+   "nom": "LORD DE BRION",
+   "proba_modele": 0.8863,
+   "rapport_estime": 1.01,
+   "n_partants": 10,
+   "seuil_utilise": 0.85,
+   "resultat": null,
+   "rapport_reel": null,
+   "gain_net": null
+  },
+  {
+   "date": "2026-08-18",
+   "r": 5,
+   "c": 6,
+   "hippodrome": "HIPPODROME DE CABOURG",
+   "heure": "19:39",
+   "discipline": "trot_attele",
+   "num": "3",
+   "nom": "ONE WAY",
+   "proba_modele": 0.8744,
+   "rapport_estime": 1.01,
+   "n_partants": 9,
+   "seuil_utilise": 0.85,
+   "resultat": null,
+   "rapport_reel": null,
+   "gain_net": null
+  }
+ ]
+}
